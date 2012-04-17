@@ -8,22 +8,36 @@ import java.io.IOException;
  */
 public class App
 {
-    public static void main(String[] args)
+    private static NeuralNetwork network;
+    private static TrainingSet   trainingSet;
+    private static TestSet       testSet;
+
+    static
     {
-        System.out.println("Hello neural network world!");
-        TrainingSet trainingSet = null;
-        TestSet testSet = null;
         try
         {
+            network = new NeuralNetwork();
             trainingSet = new TrainingSet();
             testSet = new TestSet();
         }
         catch(IOException e)
         {
-            e.printStackTrace();
+            System.err.println("smth bad happened " + e.getStackTrace());
         }
-        System.out
-                .println((trainingSet == null ? "error occured" : trainingSet));
-        System.out.println((testSet == null ? "error occured" : testSet));
+
     }
+
+    public static void main(String[] args)
+    {
+        System.out.println("Hello neural network world!");
+        try
+        {
+            network.process(testSet.getImage());
+        }
+        catch(IOException e)
+        {
+            System.err.println("smth bad happened " + e.getStackTrace());
+        }
+    }
+
 }
