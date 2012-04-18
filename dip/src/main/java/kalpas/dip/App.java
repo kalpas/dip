@@ -2,6 +2,8 @@ package kalpas.dip;
 
 import java.io.IOException;
 
+import javax.swing.JFrame;
+
 /**
  * Hello world!
  * 
@@ -27,17 +29,36 @@ public class App
 
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws IOException
     {
-        System.out.println("Hello neural network world!");
-        try
-        {
-            network.process(testSet.getImage());
-        }
-        catch(IOException e)
-        {
-            System.err.println("smth bad happened " + e.getStackTrace());
-        }
-    }
+        final int featureMapSize = 13;
+        final int featureMapCount = 6;
+        final int inputSize = 28;
 
+        System.out.println("Hello neural network world!");
+
+        JFrame frame = new JFrame("Frame in Java Swing");
+        frame.setSize(400, 400);
+        Visualize visualize = new Visualize();
+        frame.getContentPane().add(visualize);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        byte[] image = trainingSet.getImage();
+        CLayer layer = new CLayer(featureMapSize, featureMapCount, inputSize);
+
+        Visualize.drawInput(image, trainingSet.columns);
+        double[][] data = layer.process(image);
+        Visualize.draw1Layer(data, layer.featureMapSize);
+        visualize.repaint();
+
+        /* BufferedImage img2 = null;
+         try
+         {
+             img2 = ImageIO.read(new File("Toolbar.bmp"));
+         }
+         catch(IOException e)
+         {
+         }*/
+    }
 }

@@ -3,16 +3,11 @@ package kalpas.dip;
 
 public class NeuralNetwork
 {
-    private Layer[] layers;
+    
+    public int      layerCount = 1;
 
     public NeuralNetwork()
     {
-        layers = new Layer[4];
-        Layer newLayer = new CLayer(13, 6);
-        layers[0] = newLayer;
-        newLayer = new CLayer(50, 5);
-        layers[1] = newLayer;
-
 
     }
 

@@ -34,6 +34,16 @@ public class AppTest
                 .println((trainingSet == null ? "error occured" : trainingSet));
         System.out.println((testSet == null ? "error occured" : testSet));
     }
+
+    @Test
+    public void testLayer()
+    {
+        CLayer layer = new CLayer(13, 5, 28);
+        assertEquals(3, layer.getKernelX(3));
+        assertEquals(3, layer.getKernelX(8));
+        assertEquals(0, layer.getKernelY(3));
+        assertEquals(1, layer.getKernelY(8));
+        assertEquals(1, layer.getKernelY(9));
+    }
+
 }
-
-

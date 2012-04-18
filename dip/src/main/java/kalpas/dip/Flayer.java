@@ -1,13 +1,13 @@
 package kalpas.dip;
 
-public class Flayer implements Layer
+public class Flayer
 {
 
     private int[][] weights;
 
-    public void process(byte[] image)
+    public byte[][] process(byte[] image)
     {
-        // TODO Auto-generated method stub
+        return null;
 
     }
 

@@ -1,8 +1,9 @@
 package kalpas.dip;
 
+@Deprecated
 public interface Layer
 {
 
-    public abstract void process(byte[] image);
+    public abstract byte[][] process(byte[] image);
 
 }
