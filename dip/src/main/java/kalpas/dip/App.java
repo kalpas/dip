@@ -52,13 +52,6 @@ public class App
         Visualize.draw1Layer(data, layer.featureMapSize);
         visualize.repaint();
 
-        /* BufferedImage img2 = null;
-         try
-         {
-             img2 = ImageIO.read(new File("Toolbar.bmp"));
-         }
-         catch(IOException e)
-         {
-         }*/
+
     }
 }

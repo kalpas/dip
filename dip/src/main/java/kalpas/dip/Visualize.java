@@ -8,6 +8,8 @@ import java.awt.image.BufferedImage;
 @SuppressWarnings("serial")
 public class Visualize extends Canvas
 {
+    private final int            MAGNIFICATION = 3;
+
     private static BufferedImage input  = null;
 
     private static BufferedImage layer1 = null;
@@ -40,7 +42,7 @@ public class Visualize extends Canvas
                     rgb |= ((int) (data[feature][y * width + x] * 255));
                     rgb |= 0xFF000000;
 
-                    imageFromDouble.setRGB(x, y + feature * width, rgb);
+                    imageFromDouble.setRGB(x, y + feature * width, invert(rgb));
                 }
             }
         }
@@ -76,10 +78,17 @@ public class Visualize extends Canvas
     {
         Graphics2D g2 = (Graphics2D) g;
         if(input != null)
-            g2.drawImage(input, 0, 0, 200, 200, null);
+            g2.drawImage(input, 0, 0, input.getWidth() * MAGNIFICATION,
+                    input.getHeight() * MAGNIFICATION, null);
         if(layer1 != null)
-            g2.drawImage(layer1, 200, 0, layer1.getWidth() * 3,
-                    layer1.getHeight() * 3, null);
+            g2.drawImage(layer1, input.getWidth() * MAGNIFICATION, 0,
+                    layer1.getWidth() * MAGNIFICATION, layer1.getHeight()
+                            * MAGNIFICATION, null);
         g2.finalize();
+    }
+
+    private static int invert(int value)
+    {
+        return (~value) | 0xFF000000;
     }
 }

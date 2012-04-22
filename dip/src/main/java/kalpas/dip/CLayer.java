@@ -2,10 +2,10 @@ package kalpas.dip;
 
 import java.util.Arrays;
 
+import kalpas.dip.general.Constants;
+
 public class CLayer
 {
-    public final int   KERNEL_SIZE = 5;
-
     private double[][] bias;
 
     private double[][] weights;
@@ -24,7 +24,7 @@ public class CLayer
         this.featureMapCount = featureMapCount;
         this.featureMapSize = featureMapSize;
         this.inputSize = inputSize;
-        weights = new double[featureMapCount][KERNEL_SIZE * KERNEL_SIZE + 1];
+        weights = new double[featureMapCount][Constants.KERNEL_SIZE * Constants.KERNEL_SIZE + 1];
         featureMaps = new double[featureMapCount][featureMapSize
                 * featureMapSize];
         bias = new double[featureMapCount][featureMapSize * featureMapSize];
@@ -41,15 +41,15 @@ public class CLayer
     public double[][] process(byte[] image)
     {
         int neuronCount = featureMapSize * featureMapSize;
-        int kenrnelElementsCount = KERNEL_SIZE*KERNEL_SIZE;
         double sum = 0;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuron = 0; neuron < neuronCount; neuron++)
             {
                 sum+= bias[feature][neuron];
-                for(int kernelElement = 0; kernelElement < kenrnelElementsCount; kernelElement++ )
+                for(int kernelElement = 0; kernelElement < Constants.KERNEL_ELEMENTS; kernelElement++)
                 {
+                    // TODO optimize
                     sum += image[getImageIndex(getKernelX(kernelElement)
                             + getFeatureMapX(neuron), getKernelY(kernelElement)
                             + getFeatureMapY(neuron))]
@@ -85,12 +85,12 @@ public class CLayer
 
     protected final int getKernelX(int n)
     {
-        return n % KERNEL_SIZE;
+        return n % Constants.KERNEL_SIZE;
     }
 
     protected final int getKernelY(int n)
     {
-        return n / KERNEL_SIZE;
+        return n / Constants.KERNEL_SIZE;
     }
 
     protected final int getFeatureMapX(int n)
