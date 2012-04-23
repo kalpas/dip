@@ -1,9 +1,15 @@
 package kalpas.test;
 
+import java.util.Arrays;
+import java.util.Random;
+
+import kalpas.dip.general.Constants;
+
 public class testNeuronLayer
 {
     private double[]   dErrorDy;
     private double[][] dErrorDw;
+    private double [] dErrorDxm1;
     
     private double[] input;
     private double[][] weights;
@@ -23,6 +29,9 @@ public class testNeuronLayer
         output = new double[neurons];
         dErrorDy = new double[neurons];
         dErrorDw = new double[neurons][inputs+1];
+        dErrorDxm1 = new double[neurons];
+        
+        initWeights();
         
     }
 
@@ -44,27 +53,32 @@ public class testNeuronLayer
 
     public double[] backPropagate(double[] dErrorDx)
     {
-        
+        double dEdY;
+        Arrays.fill(dErrorDxm1, 0.0);
+        for(double[] array: dErrorDw)
+            Arrays.fill(array,0.0);
+        for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
+        {
+            dEdY = activationFunctionDerivative(neuronIndex)* dErrorDx[neuronIndex];
+            dErrorDy[neuronIndex] = dEdY;
+            dErrorDw[neuronIndex][BIAS] = dEdY;
+            for(int connectIndex = 0; connectIndex < inputs; connectIndex++)
+            {
+                dErrorDw[neuronIndex][connectIndex] += dEdY*input[connectIndex];
+                dErrorDxm1[connectIndex]+=dEdY*weights[neuronIndex][connectIndex];
+            }
+            
+        }
         
         for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
         {
-            final double dEdY = activationFunctionDerivative(neuronIndex)* dErrorDx[neuronIndex];
-            dErrorDy[neuronIndex] = dEdY;
-            for(int connectIndex = 0; connectIndex < inputs; connectIndex++)
+            for(int connectionIndex = 0; connectionIndex < inputs; connectionIndex++)
             {
-                dErrorDw[neuronIndex][connectIndex] = dEdY*input[connectIndex];
+                weights[neuronIndex][connectionIndex] -= Constants.ETA_LEARNIG_RATE*dErrorDw[neuronIndex][connectionIndex];
             }
         }
         
-        
-        
-        
-        
-        double errorDerivative;// xi - ti (actual - target)
-        
-        double activationDerivative;//1-x^2
-        
-        return null;
+        return dErrorDxm1;
 
     }
     
@@ -78,6 +92,15 @@ public class testNeuronLayer
         return 1 - Math.pow(output[index], 2);
     }
 
+    private void initWeights()
+    {
+        Random randomizer = new Random();
+        final double pow = Math.pow(inputs, -0.5);
+        for(double[] array: weights)
+            for(int i = 0; i < inputs;i++)
+                array[i] = randomizer.nextGaussian()*pow;
+    }
+    
     /**
      * @return the weights
      */

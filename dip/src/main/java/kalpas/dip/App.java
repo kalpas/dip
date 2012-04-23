@@ -2,8 +2,6 @@ package kalpas.dip;
 
 import java.io.IOException;
 
-import javax.swing.JFrame;
-
 /**
  * Hello world!
  * 
@@ -31,7 +29,7 @@ public class App
 
     public static void main(String[] args) throws IOException
     {
-        final int featureMapSize = 13;
+       /* final int featureMapSize = 13;
         final int featureMapCount = 6;
         final int inputSize = 28;
 
@@ -50,7 +48,7 @@ public class App
         Visualize.drawInput(image, trainingSet.columns);
         double[][] data = layer.process(image);
         Visualize.draw1Layer(data, layer.featureMapSize);
-        visualize.repaint();
+        visualize.repaint();*/
 
 
     }

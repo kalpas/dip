@@ -1,46 +1,49 @@
 package kalpas.dip;
 
-import java.util.Arrays;
+import java.util.Random;
 
 import kalpas.dip.general.Constants;
 
 public class CLayer
 {
-    private double[][] bias;
-
+    private double[] input;
     private double[][] weights;
-
     private double[][] featureMaps;
+    
+    private double[][]   dErrorDy;
+    private double[][] dErrorDw;
+    private double[][] dErrorDxm1;
 
     public int         featureMapCount;
-
     public int         featureMapSize;
-
+    
     private int        inputSize;
 
 
     public CLayer(int featureMapSize, int featureMapCount, int inputSize)
     {
+        final int neuronNumber = featureMapSize*featureMapSize;
+        
         this.featureMapCount = featureMapCount;
         this.featureMapSize = featureMapSize;
         this.inputSize = inputSize;
-        weights = new double[featureMapCount][Constants.KERNEL_SIZE * Constants.KERNEL_SIZE + 1];
-        featureMaps = new double[featureMapCount][featureMapSize
-                * featureMapSize];
-        bias = new double[featureMapCount][featureMapSize * featureMapSize];
+        weights = new double[featureMapCount][Constants.KERNEL_ELEMENTS + 1];
+        featureMaps = new double[featureMapCount][neuronNumber];
+        dErrorDy = new double[featureMapCount][neuronNumber];
+        dErrorDw = new double[featureMapCount][Constants.KERNEL_ELEMENTS + 1];
+        //dErrorDxm1 = new double[neurons][];
         initKernelWeights();
-        initBias();
 
     }
 
     private double activationFunction(double n)
     {
-        return Math.tanh(n);
+        return 1.71*Math.tanh(0.6666666*n);
     }
 
     public double[][] process(byte[] image)
     {
-        int neuronCount = featureMapSize * featureMapSize;
+        /*int neuronCount = featureMapSize * featureMapSize;
         double sum = 0;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
@@ -59,48 +62,18 @@ public class CLayer
                 sum = 0;
             }
         }
-        return featureMaps;
+        return featureMaps;*/
+        return null;
     }
 
     private final void initKernelWeights()
     {
-        for(double[] array : weights)
-        {
-            Arrays.fill(array, 0.0);
-        }
+        Random randomizer = new Random();
+        final double pow = Math.pow(Constants.KERNEL_ELEMENTS, -0.5);
+        for(double[] array: weights)
+            for(int i = 0; i < Constants.KERNEL_ELEMENTS;i++)
+                array[i] = randomizer.nextGaussian()*pow;
     }
-
-    private final void initBias()
-    {
-        for(double[] array : bias)
-        {
-            Arrays.fill(array, 0.0);
-        }
-    }
-
-    protected final int getImageIndex(int x, int y)
-    {
-        return y * inputSize + x;
-    }
-
-    protected final int getKernelX(int n)
-    {
-        return n % Constants.KERNEL_SIZE;
-    }
-
-    protected final int getKernelY(int n)
-    {
-        return n / Constants.KERNEL_SIZE;
-    }
-
-    protected final int getFeatureMapX(int n)
-    {
-        return n % featureMapSize;
-    }
-
-    protected final int getFeatureMapY(int n)
-    {
-        return n / featureMapSize;
-    }
+    
 
 }

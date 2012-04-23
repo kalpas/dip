@@ -14,19 +14,28 @@ public class DataSet
     public int                  rows;
     public int                  columns;
 
-    private final int           LABELS            = 2049;
-    private final int           IMAGES            = 2051;
+    private final int           LABELS = 2049;
+    private final int           IMAGES = 2051;
 
     private FileInputStream     fileInputStream;
     private BufferedInputStream labelsBufferedStream;
     private BufferedInputStream imagesBufferedStream;
 
+    private Image[] images;
+    
+    
+    private int counter = 0;
+    
+    public Image getNextImage()
+    {
+        return images[counter++];
+    }
     
     protected String getLabelFile()
     {
         return null;
     }
-    
+
     protected String getImageFile()
     {
         return null;
@@ -35,6 +44,7 @@ public class DataSet
     public DataSet() throws IOException
     {
         prepare();
+        preload();
     }
 
     private void prepare() throws IOException
@@ -66,8 +76,11 @@ public class DataSet
             if(labelsCount < 0)
                 System.err.println("smth wrong. labels count is: "
                         + labelsCount);
-
-            // ---------------
+        }
+        // ---------------
+        if(imagesBufferedStream.available() > 0)
+        {
+            buffer = new byte[4];
 
             imagesBufferedStream.read(buffer);
             if(ByteBuffer.wrap(buffer).getInt() != IMAGES)
@@ -89,14 +102,26 @@ public class DataSet
 
     }
 
-    public byte[] getImage() throws IOException
+    private void preload() throws IOException
+    {
+        images = new Image[imageCount];
+        Image current = null;
+        
+        for(int imageIndex = 0; imageIndex < imageCount; imageIndex++)
+        {
+            current = new Image(getImage(),getLabel());
+            images[imageIndex] = current;
+        }
+    }
+
+    private byte[] getImage() throws IOException
     {
         byte[] image = new byte[columns * rows];
         imagesBufferedStream.read(image);
         return image;
     }
 
-    public int getLabel() throws IOException
+    private int getLabel() throws IOException
     {
         return labelsBufferedStream.read();
     }
