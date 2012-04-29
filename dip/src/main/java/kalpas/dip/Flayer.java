@@ -1,12 +1,15 @@
 package kalpas.dip;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
 import kalpas.dip.general.Constants;
 
-public class Flayer
+public class Flayer implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+    
     private double[]   dErrorDy;
     private double[][] dErrorDw;
     private double [] dErrorDxm1;
@@ -29,7 +32,7 @@ public class Flayer
         output = new double[neurons];
         dErrorDy = new double[neurons];
         dErrorDw = new double[neurons][inputs+1];
-        dErrorDxm1 = new double[neurons];
+        dErrorDxm1 = new double[inputs];
         
         initWeights();
         

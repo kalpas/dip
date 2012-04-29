@@ -1,8 +1,13 @@
 package kalpas.dip;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
+
+import kalpas.dip.general.Constants;
 
 /**
  * Hello world!
@@ -13,6 +18,7 @@ public class App
     private static NeuralNetwork network;
     private static TrainingSet   trainingSet;
     private static TestSet       testSet;
+    private static double[]      dErrorDx;
 
     static
     {
@@ -21,6 +27,7 @@ public class App
             network = new NeuralNetwork();
             trainingSet = new TrainingSet();
             testSet = new TestSet();
+            dErrorDx = new double[]{0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
         }
         catch(IOException e)
         {
@@ -31,14 +38,10 @@ public class App
 
     public static void main(String[] args) throws IOException
     {
-        final int featureMapSize = 13;
-        final int featureMapCount = 6;
-        final int inputSize = 28;
-
         System.out.println("Hello neural network world!");
 
         JFrame frame = new JFrame("Frame in Java Swing");
-        frame.setSize(400, 400);
+        frame.setSize(400, 800);
         Visualize visualize = new Visualize();
         frame.getContentPane().add(visualize);
         frame.setVisible(true);
@@ -48,32 +51,48 @@ public class App
         Flayer layer2 = new Flayer(10, 4032);
 
         Image image = null;
-        for(int i = 0; i < 5; i++)
+        for(int i = 0; i < 10; i++)
         {
             trainingSet = new TrainingSet();
-            for(int j = 0; j < 10; j++)
+            double[] output = null;
+            for(int j = 0; j < trainingSet.imageCount; j++)
             {
                 image = trainingSet.getNextImage();
-                layer2.process(process(layer1.process(image.bytes)));
-//                System.out.println(layer2.process(process(layer1.process(image.bytes))));
-                //layer1.backPropagate(layer2.backPropagate(new double[]{}));
+                output = layer2.process(layer1.process(image.bytes));
+                getError(output, image.value);
+                layer1.backPropagate(layer2.backPropagate(dErrorDx));
+                // System.out.println(layer2.process(process(layer1.process(image.bytes))));
+                // layer1.backPropagate(layer2.backPropagate(new double[]{}));
             }
+            Constants.ETA_LEARNIG_RATE/=100;
         }
 
-
         Visualize.drawInput(image.bytes, trainingSet.columns);
-        Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapSize);
-        // visualize.repaint();
+        Visualize.drawKernels(layer1.getKernelWeights());
+        Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapCount,
+                layer1.featureMapSize);
+
+        // frame.setVisible(false);
+        // frame.dispose();
+
+        visualize.repaint();
+        
+        FileOutputStream fos = new FileOutputStream("temp.out");
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(layer1);
+        oos.writeObject(layer2);
+        oos.flush();
+        oos.close();
 
     }
 
-    private static double[] process(double[][] inputs)
+    private static void getError(double[] actual,int n)
     {
-        double[] result = new double[inputs.length * inputs[0].length];
-        for(int i = 0; i < inputs.length; i++)
-            System.arraycopy(inputs[i], 0, result, i*inputs[i].length, inputs[i].length);
-            
-        return result;
+        Arrays.fill(dErrorDx, -1.0);
+        dErrorDx[n] = 1.0;
+        for(int i = 0; i < 10; i++)
+        {
+           dErrorDx[i] =actual[i]- dErrorDx[i];
+        }
     }
-
 }
