@@ -35,11 +35,11 @@ public class Visualize extends Canvas
                 for(int x = 0; x < width; x++)
                 {
                     int rgb = 0x0;
-                    rgb |= ((int) ((data[feature][y * width + x]+1.0) * 127));
-                    if(data[feature][y * width + x]>0)
-                    {
-                        rgb <<= 16;
-                    }
+                    rgb |= ((int) (data[feature][y * width + x] * 127)+128);
+                    rgb <<= 8;
+                    rgb |= ((int) (data[feature][y * width + x] * 127)+128);
+                    rgb <<= 8;
+                    rgb |= ((int) (data[feature][y * width + x] * 127)+128);
                     rgb |= 0xFF000000;
 
                     imageFromDouble.setRGB(x, y + feature * width, invert(rgb));

@@ -7,39 +7,37 @@ import kalpas.dip.general.Constants;
 
 public class CLayer
 {
-    public double[][] featureMaps;     // outputs
-    public int         featureMapCount;
-    public int         featureMapSize;
-    private int        inputSize;
-    private int        neurons;//in feature map
-    private double[][] dErrorDy;
+    public double[][]    featureMaps;    // outputs
+    public int           featureMapCount;
+    public int           featureMapSize;
+    private int          inputSize;
+    private int          neurons;         // in feature map
+    private double[][]   dErrorDy;
     private double[][][] dErrorDw;
-    //private double[][] dErrorDxm1;
-    private double[][] kernelWeights;
+    // private double[][] dErrorDxm1;
+    private double[][]   kernelWeights;
 
     // ///////////////
 
-    private double[]   input;
+    private double[]     input;
 
-    private int        inputs;
-
-    private int        BIAS;
+    private int          BIAS;
 
     public CLayer(int featureMapSize, int featureMapCount, int inputSize)
     {
         final int fmapElCount = featureMapSize * featureMapSize;
 
         // //////////
-       /* this.featureMapCount = featureMapCount;
-        this.featureMapSize = featureMapSize;
-        this.inputSize = inputSize;
-        kernelWeights = new double[featureMapCount][Constants.KERNEL_SIZE
-                * Constants.KERNEL_SIZE + 1];
-        featureMaps = new double[featureMapCount][fmapElCount];
-        bias = new double[featureMapCount][fmapElCount];
-        initKernelWeights();
-        initBias();
-*/
+        /* this.featureMapCount = featureMapCount;
+         this.featureMapSize = featureMapSize;
+         this.inputSize = inputSize;
+         kernelWeights = new double[featureMapCount][Constants.KERNEL_SIZE
+                 * Constants.KERNEL_SIZE + 1];
+         featureMaps = new double[featureMapCount][fmapElCount];
+         bias = new double[featureMapCount][fmapElCount];
+         initKernelWeights();
+         initBias();
+        */
         // //////////
 
         this.BIAS = Constants.KERNEL_ELEMENTS;
@@ -53,7 +51,7 @@ public class CLayer
         featureMaps = new double[featureMapCount][fmapElCount];
         dErrorDy = new double[featureMapCount][fmapElCount];
         dErrorDw = new double[featureMapCount][fmapElCount][Constants.KERNEL_ELEMENTS + 1];
-        //dErrorDxm1 = new double[featureMapCount][fmapElCount];
+        // dErrorDxm1 = new double[featureMapCount][fmapElCount];
 
         initKernelWeights();
 
@@ -63,7 +61,7 @@ public class CLayer
     {
         return Math.tanh(n);
     }
-    
+
     private double activationFunctionDerivative(int feature, int index)
     {
         return 1 - Math.pow(featureMaps[feature][index], 2);
@@ -72,27 +70,37 @@ public class CLayer
     public double[][] process(byte[] image)
     {
         this.input = new double[image.length];
-        for(int i = 0 ; i < image.length; i++)
+        for(int i = 0; i < image.length; i++)
         {
-            this.input[i] = (double)(image[i] & 0xFF);
+            this.input[i] = (double) (image[i] & 0xFF);
         }
-        
+
         double sum = 0;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
-            for(int neuron = 0; neuron < neurons; neuron++)
+            for(int neuronRow = 0; neuronRow < featureMapSize; neuronRow++)
             {
-                sum += kernelWeights[feature][BIAS];
-                for(int kernelElement = 0; kernelElement < Constants.KERNEL_ELEMENTS; kernelElement++)
+                for(int neuronCol = 0; neuronCol < featureMapSize; neuronCol++)
                 {
-                    // TODO optimize
-                    sum += this.input[getImageIndex(getKernelX(kernelElement)
-                            + getFeatureMapX(neuron), getKernelY(kernelElement)
-                            + getFeatureMapY(neuron))]
-                            * kernelWeights[feature][kernelElement];
+                    sum += kernelWeights[feature][BIAS];
+                    for(int kernelRow = 0; kernelRow < Constants.KERNEL_SIZE; kernelRow++)
+                    {
+                        for(int kernelCol = 0; kernelCol < Constants.KERNEL_SIZE; kernelCol++)
+                        {
+                            sum += this.input[(neuronRow + kernelRow) * inputSize
+                                    + (neuronCol + kernelCol)]
+                                    * kernelWeights[feature][kernelRow
+                                            * Constants.KERNEL_SIZE + kernelCol];
+                            // TODO optimize
+                            /*  sum += this.input[getImageIndex(getKernelX(kernelElement)
+                                      + getFeatureMapX(neuron), getKernelY(kernelElement)
+                                      + getFeatureMapY(neuron))]
+                                      * kernelWeights[feature][kernelElement];*/
+                        }
+                    }
+                    featureMaps[feature][neuronRow*featureMapSize+neuronCol] = activationFunction(sum);
+                    sum = 0;
                 }
-                featureMaps[feature][neuron] = activationFunction(sum);
-                sum = 0;
             }
         }
         return featureMaps;
@@ -101,15 +109,15 @@ public class CLayer
     public void backPropagate(double[][] dErrorDx)
     {
         double dEdY;
-//        Arrays.fill(dErrorDxm1, 0.0);
+        // Arrays.fill(dErrorDxm1, 0.0);
         for(double[][] array : dErrorDw)
-            for(double[] subArray: array)
+            for(double[] subArray : array)
                 Arrays.fill(subArray, 0.0);
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
             {
-                dEdY = activationFunctionDerivative(feature,neuronIndex)
+                dEdY = activationFunctionDerivative(feature, neuronIndex)
                         * dErrorDx[feature][neuronIndex];
                 dErrorDy[feature][neuronIndex] = dEdY;
                 dErrorDw[feature][neuronIndex][BIAS] = dEdY;
@@ -117,14 +125,14 @@ public class CLayer
                 {
                     dErrorDw[feature][neuronIndex][connectIndex] += dEdY
                             * input[connectIndex];
-//                    dErrorDxm1[connectIndex] += dEdY
-//                            * kernelWeights[neuronIndex][connectIndex];
+                    // dErrorDxm1[connectIndex] += dEdY
+                    // * kernelWeights[neuronIndex][connectIndex];
                 }
-    
+
             }
         }
-        
-        //------------
+
+        // ------------
 
         for(int feature = 0; feature < featureMapCount; feature++)
         {
@@ -140,10 +148,6 @@ public class CLayer
 
     }
 
-    protected final int getImageIndex(int x, int y)
-    {
-        return y * inputSize + x;
-    }
 
     protected final int getKernelX(int n)
     {
