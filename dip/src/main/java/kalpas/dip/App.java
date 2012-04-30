@@ -1,13 +1,7 @@
 package kalpas.dip;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
-
-import javax.swing.JFrame;
-
-import kalpas.dip.general.Constants;
 
 /**
  * Hello world!
@@ -15,30 +9,22 @@ import kalpas.dip.general.Constants;
  */
 public class App
 {
-    private static NeuralNetwork network;
-    private static TrainingSet   trainingSet;
-    private static TestSet       testSet;
-    private static double[]      dErrorDx;
+    private static TrainingSet trainingSet;
+    private static TestSet     testSet;
+    private static double[]    dErrorDx;
 
     static
     {
-        try
-        {
-            network = new NeuralNetwork();
-            trainingSet = new TrainingSet();
-            testSet = new TestSet();
-            dErrorDx = new double[]{0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
-        }
-        catch(IOException e)
-        {
-            System.err.println("smth bad happened " + e.getStackTrace());
-        }
+        trainingSet = new TrainingSet();
+        testSet = new TestSet();
+        dErrorDx = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0 };
 
     }
 
     public static void main(String[] args) throws IOException
     {
-        System.out.println("Hello neural network world!");
+        /*System.out.println("Hello neural network world!");
 
         JFrame frame = new JFrame("Frame in Java Swing");
         frame.setSize(400, 800);
@@ -82,17 +68,17 @@ public class App
         oos.writeObject(layer1);
         oos.writeObject(layer2);
         oos.flush();
-        oos.close();
+        oos.close();*/
 
     }
 
-    private static void getError(double[] actual,int n)
+    private static void getError(double[] actual, int n)
     {
         Arrays.fill(dErrorDx, -1.0);
         dErrorDx[n] = 1.0;
         for(int i = 0; i < 10; i++)
         {
-           dErrorDx[i] =actual[i]- dErrorDx[i];
+            dErrorDx[i] = actual[i] - dErrorDx[i];
         }
     }
 }

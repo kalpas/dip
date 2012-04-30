@@ -1,19 +1,9 @@
 package kalpas.dip;
 
 
-public class NeuralNetwork
+public interface NeuralNetwork
 {
+    public int process(Image image);
     
-    public int      layerCount = 1;
-
-    public NeuralNetwork()
-    {
-
-    }
-
-    public int process(byte[] image)
-    {
-        return 0;
-    }
-
+    public void backPropagate(int i);
 }

@@ -1,11 +1,10 @@
 package kalpas.dip;
 
-import java.io.IOException;
 
 public class TrainingSet extends DataSet
 {
 
-    public TrainingSet() throws IOException
+    public TrainingSet()
     {
         super();
     }

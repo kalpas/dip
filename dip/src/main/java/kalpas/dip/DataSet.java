@@ -14,23 +14,22 @@ public class DataSet
     public int                  rows;
     public int                  columns;
 
-    private final int           LABELS = 2049;
-    private final int           IMAGES = 2051;
+    private final int           LABELS  = 2049;
+    private final int           IMAGES  = 2051;
 
     private FileInputStream     fileInputStream;
     private BufferedInputStream labelsBufferedStream;
     private BufferedInputStream imagesBufferedStream;
 
-    private Image[] images;
-    
-    
-    private int counter = 0;
-    
+    private Image[]             images;
+
+    private int                 counter = 0;
+
     public Image getNextImage()
     {
         return images[counter++];
     }
-    
+
     protected String getLabelFile()
     {
         return null;
@@ -41,10 +40,17 @@ public class DataSet
         return null;
     }
 
-    public DataSet() throws IOException
+    public DataSet()
     {
-        prepare();
-        preload();
+        try
+        {
+            prepare();
+            preload();
+        }
+        catch(IOException e)
+        {
+            System.err.println("smth bad with IO " + e.getStackTrace());
+        }
     }
 
     private void prepare() throws IOException
@@ -106,10 +112,10 @@ public class DataSet
     {
         images = new Image[imageCount];
         Image current = null;
-        
+
         for(int imageIndex = 0; imageIndex < imageCount; imageIndex++)
         {
-            current = new Image(getImage(),getLabel());
+            current = new Image(getImage(), getLabel(), imageIndex);
             images[imageIndex] = current;
         }
     }
