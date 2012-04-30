@@ -49,7 +49,7 @@ public class Flayer implements Serializable
             {
                 sum += input[inputIndex] * weights[neuronIndex][inputIndex];
             }
-            output[neuronIndex] = activationFunction(sum);
+            output[neuronIndex] = 1.7159*Math.tanh(0.66666667*sum);
         }
         return output;
     }
@@ -57,12 +57,16 @@ public class Flayer implements Serializable
     public double[] backPropagate(double[] dErrorDx)
     {
         double dEdY;
+        double outputValue;
         Arrays.fill(dErrorDxm1, 0.0);
         for(double[] array: dErrorDw)
             Arrays.fill(array,0.0);
         for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
         {
-            dEdY = activationFunctionDerivative(neuronIndex)* dErrorDx[neuronIndex];
+            outputValue = output[neuronIndex];
+            dEdY = 0.66666667/1.7159*(1.7159+outputValue)*(1.7159-outputValue);
+            dEdY *= dErrorDx[neuronIndex];
+            
             dErrorDy[neuronIndex] = dEdY;
             dErrorDw[neuronIndex][BIAS] = dEdY;
             for(int connectIndex = 0; connectIndex < inputs; connectIndex++)
@@ -85,11 +89,13 @@ public class Flayer implements Serializable
 
     }
     
+    @Deprecated
     private double activationFunction(double value)
     {
         return Math.tanh(value);
     }
     
+    @Deprecated
     private double activationFunctionDerivative(int index)
     {
         return 1 - Math.pow(output[index], 2);

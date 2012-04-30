@@ -1,7 +1,6 @@
 package kalpas.dip;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Random;
 
 import kalpas.dip.general.Constants;
@@ -46,14 +45,12 @@ public class CLayer implements Serializable
 
     }
 
-    private double activationFunction(double n)
-    {
-        return Math.tanh(n);
-    }
-
+    @Deprecated
     private double activationFunctionDerivative(int feature, int index)
     {
-        return 1 - Math.pow(featureMaps[feature * neurons + index], 2);
+        //(0.66666667/1.7159*(1.7159+(S))*(1.7159-(S)))
+        return (0.66666667/1.7159*(1.7159+featureMaps[feature * neurons + index])*(1.7159-featureMaps[feature * neurons + index]));
+        //return 1 - Math.pow(featureMaps[feature * neurons + index], 2);
     }
 
     public double[] process(byte[] image)
@@ -83,7 +80,7 @@ public class CLayer implements Serializable
                         }
                     }
                     featureMaps[feature * neurons
-                            + (neuronRow * featureMapSize + neuronCol)] = activationFunction(sum);
+                            + (neuronRow * featureMapSize + neuronCol)] = 1.7159*Math.tanh(0.66666667*sum);
                     sum = 0;
                 }
             }
@@ -94,21 +91,24 @@ public class CLayer implements Serializable
     public void backPropagate(double[] dErrorDx)
     {
         double dEdY;
+        double outputValue;
         // Arrays.fill(dErrorDxm1, 0.0);
-        for(double[][] array : dErrorDw)
+      /*  for(double[][] array : dErrorDw)
             for(double[] subArray : array)
-                Arrays.fill(subArray, 0.0);
+                Arrays.fill(subArray, 0.0);*/
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
             {
-                dEdY = activationFunctionDerivative(feature, neuronIndex)
-                        * dErrorDx[feature * neurons + neuronIndex];
+               
+                outputValue = featureMaps[feature * neurons + neuronIndex];
+                dEdY =  0.66666667/1.7159*(1.7159+outputValue)*(1.7159-outputValue);
+                dEdY *= dErrorDx[feature * neurons + neuronIndex];
                 dErrorDy[feature][neuronIndex] = dEdY;
                 dErrorDw[feature][neuronIndex][BIAS] = dEdY;
                 for(int connectIndex = 0; connectIndex < Constants.KERNEL_ELEMENTS; connectIndex++)
                 {
-                    dErrorDw[feature][neuronIndex][connectIndex] += dEdY
+                    dErrorDw[feature][neuronIndex][connectIndex] = dEdY
                             * input[connectIndex];
                     // dErrorDxm1[connectIndex] += dEdY
                     // * kernelWeights[neuronIndex][connectIndex];
