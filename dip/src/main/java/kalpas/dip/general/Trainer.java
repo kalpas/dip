@@ -16,13 +16,14 @@ public class Trainer
 {
     private NeuralNetwork net;
 
-    private DataSet       trainSet   = new TrainingSet();
-    private DataSet       testSet    = new TestSet();
+    private DataSet       trainSet      = new TrainingSet();
+    private DataSet       testSet       = new TestSet();
 
-    private Double        ETA        = Constants.ETA_LEARNIG_RATE;
-    private int           EPOCHS     = 100;
+    private Double        ETA           = Constants.ETA_LEARNIG_RATE;
+    private int           EPOCHS        = 100;
+    private double        errorThresold = 0.001;
 
-    private DataSet       primarySet = null;
+    private DataSet       primarySet    = null;
 
     private Trainer()
     {
@@ -52,9 +53,9 @@ public class Trainer
     {
         this.EPOCHS = epochs;
         this.start();
-        
+
     }
-    
+
     public void start()
     {
         if(primarySet != null)
@@ -66,7 +67,9 @@ public class Trainer
                 {
                     image = primarySet.getNextImage();
                     net.process(image);
-                    net.backPropagate(image.value);
+                    if(!net.isFault()&&net.getdErrorDx()[image.value]<errorThresold)
+                        continue;
+                    net.backPropagate();
                 }
                 dump(i);
                 Constants.ETA_LEARNIG_RATE /= 10;
@@ -83,13 +86,14 @@ public class Trainer
         {
             image = testSet.getNextImage();
             output = net.process(image);
-            if(output!=image.value)
+            if(output != image.value)
             {
-                System.err.println("pattern not recognized: "+image.index);
+                System.err.println("pattern not recognized: " + image.index);
                 errors++;
             }
         }
-        System.out.println(errors +" - "+errors*100/testSet.imageCount+"%");
+        System.out.println(errors + " - " + errors * 100 / testSet.imageCount
+                + "%");
         return errors;
 
     }
@@ -114,8 +118,8 @@ public class Trainer
     {
         File dumpDir = new File("dump");
         dumpDir.mkdirs();
-        String fileName = "dump\\"+net.getClass().toString() + "epoch" + epoch + "."
-                + (new Date()).getTime();
+        String fileName = "dump\\" + net.getClass().toString() + "epoch"
+                + epoch + "." + (new Date()).getTime();
         save(fileName);
     }
 
@@ -151,5 +155,22 @@ public class Trainer
     public void setEPOCHS(int ePOCHS)
     {
         EPOCHS = ePOCHS;
+    }
+
+    /**
+     * @return the errorThresold
+     */
+    public double getErrorThresold()
+    {
+        return errorThresold;
+    }
+
+    /**
+     * @param errorThresold
+     *            the errorThresold to set
+     */
+    public void setErrorThresold(double errorThresold)
+    {
+        this.errorThresold = errorThresold;
     }
 }

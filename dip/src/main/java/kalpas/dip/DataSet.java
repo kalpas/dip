@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.Random;
 
 public class DataSet
 {
@@ -24,10 +25,13 @@ public class DataSet
     private Image[]             images;
 
     private int                 counter = 0;
+    private int                 shift = 0;
 
     public Image getNextImage()
     {
-        return images[counter++];
+        counter+=shift;
+        counter = counter%imageCount;
+        return images[counter];
     }
 
     protected String getLabelFile()
@@ -46,6 +50,7 @@ public class DataSet
         {
             prepare();
             preload();
+            createShift();
         }
         catch(IOException e)
         {
@@ -136,6 +141,12 @@ public class DataSet
     public String toString()
     {
         return imageCount + " images " + rows + "x" + columns;
+    }
+    
+    public void createShift()
+    {
+        Random random = new Random();
+        shift = random.nextInt()%imageCount+imageCount/2;
     }
 
 }

@@ -6,11 +6,12 @@ import java.io.ObjectInputStream;
 
 import kalpas.dip.simple.SimpleNetwork;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TrainerTest
 {
-    
+    @Ignore
     @Test
     public void trainerTest() throws IOException, ClassNotFoundException
     {

@@ -1,7 +1,11 @@
 package kalpas.dip;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.ObjectInputStream;
+
+import kalpas.dip.general.Trainer;
+import kalpas.dip.simple.SimpleNetwork;
 
 /**
  * Hello world!
@@ -22,8 +26,25 @@ public class App
 
     }
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws IOException, ClassNotFoundException
     {
+        System.out.println("Start");
+        
+        FileInputStream fis = new FileInputStream("SimpleNetwork");
+        ObjectInputStream oin = new ObjectInputStream(fis);
+        SimpleNetwork net = (SimpleNetwork)oin.readObject();
+        
+        
+        System.out.println("Loaded");
+        
+        Trainer simpleNetworkTrainer = Trainer.train(net).onTrainSet();
+        simpleNetworkTrainer.start(1);
+        System.out.println("Trained");
+        simpleNetworkTrainer.test();
+        System.out.println("Tested");
+        simpleNetworkTrainer.save("profilerLaunch");
+        System.out.println("Finished");
+        
         /*System.out.println("Hello neural network world!");
 
         JFrame frame = new JFrame("Frame in Java Swing");
@@ -70,15 +91,5 @@ public class App
         oos.flush();
         oos.close();*/
 
-    }
-
-    private static void getError(double[] actual, int n)
-    {
-        Arrays.fill(dErrorDx, -1.0);
-        dErrorDx[n] = 1.0;
-        for(int i = 0; i < 10; i++)
-        {
-            dErrorDx[i] = actual[i] - dErrorDx[i];
-        }
     }
 }

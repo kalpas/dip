@@ -14,6 +14,7 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     
     private double[] output;
     private double[] dErrorDx;
+    private boolean fault;
 
     private CLayer   layer1;
     private Flayer   layer2;
@@ -26,7 +27,7 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     
     public int process(Image image)
     {
-
+        fault = true;
         output = layer2.process(layer1.process(image.bytes));
         double max = -1.0;
         int maxIndex = 0;
@@ -38,14 +39,16 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
                 maxIndex = i;
             }
         }
+        if(maxIndex==image.value)
+            fault = false;
+        getError(image.value);
         return maxIndex;
     }
 
-    public void backPropagate(int i)
+    public void backPropagate()
     {
         if(output != null)
         {
-            getError(i);
             layer1.backPropagate(layer2.backPropagate(dErrorDx));
 
         }
@@ -76,5 +79,22 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     {
         this.layer2 = layer2;
     }
+
+    /**
+     * @return the dErrorDx
+     */
+    public double[] getdErrorDx()
+    {
+        return dErrorDx;
+    }
+
+    /**
+     * @return the fault
+     */
+    public boolean isFault()
+    {
+        return fault;
+    }
+
 
 }
