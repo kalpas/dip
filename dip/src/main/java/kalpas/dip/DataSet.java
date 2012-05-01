@@ -54,7 +54,7 @@ public class DataSet
         }
         catch(IOException e)
         {
-            System.err.println("smth bad with IO " + e.getStackTrace());
+            System.err.println("smth bad with IO " + e.getCause());
         }
     }
 
@@ -73,7 +73,7 @@ public class DataSet
         }
         catch(FileNotFoundException e)
         {
-            System.err.println("smth bad happened\n" + e.getStackTrace());
+            System.err.println("smth bad happened\n" + e.getCause());
         }
 
         if(labelsBufferedStream.available() > 0)
@@ -147,6 +147,8 @@ public class DataSet
     {
         Random random = new Random();
         shift = Math.abs(random.nextInt())%imageCount+imageCount/2;
+        if(shift!=0&&shift%2 ==0)
+            shift -=1;
     }
 
 }

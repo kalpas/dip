@@ -47,7 +47,7 @@ public class MNISTdao
             }
             catch(FileNotFoundException e)
             {
-                System.err.println("smth bad happened\n" + e.getStackTrace());
+                System.err.println("smth bad happened\n" + e.getCause());
             }
 
             try
@@ -65,7 +65,7 @@ public class MNISTdao
             }
             catch(IOException e)
             {
-                System.err.println("smth bad happened\n" + e.getStackTrace());
+                System.err.println("smth bad happened\n" + e.getCause());
             }
         }
 
@@ -85,7 +85,7 @@ public class MNISTdao
         }
         catch(IOException e)
         {
-            System.err.println("smth bad happened\n" + e.getStackTrace());
+            System.err.println("smth bad happened\n" + e.getCause());
         }
         return -1;
     }

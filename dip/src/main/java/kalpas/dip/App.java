@@ -1,8 +1,6 @@
 package kalpas.dip;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
 import kalpas.dip.general.Trainer;
 import kalpas.dip.simple.SimpleNetwork;
@@ -30,19 +28,18 @@ public class App
     {
         System.out.println("Start");
         
-        FileInputStream fis = new FileInputStream("SimpleNetwork");
+       /* FileInputStream fis = new FileInputStream("SimpleNetwork");
         ObjectInputStream oin = new ObjectInputStream(fis);
-        SimpleNetwork net = (SimpleNetwork)oin.readObject();
+        SimpleNetwork net = (SimpleNetwork)oin.readObject();*/
         
         
         System.out.println("Loaded");
         
-        Trainer simpleNetworkTrainer = Trainer.train(net).onTrainSet();
+        Trainer simpleNetworkTrainer = Trainer.train(new SimpleNetwork()).onTrainSet();
         simpleNetworkTrainer.start(1);
         System.out.println("Trained");
         simpleNetworkTrainer.test();
         System.out.println("Tested");
-        simpleNetworkTrainer.save("profilerLaunch");
         System.out.println("Finished");
         
         /*System.out.println("Hello neural network world!");

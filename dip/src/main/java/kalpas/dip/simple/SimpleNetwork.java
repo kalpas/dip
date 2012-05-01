@@ -23,6 +23,8 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     public SimpleNetwork()
     {
         dErrorDx = new double[]{0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+        layer1 = new CLayer(24, 6, 28);
+        layer2 = new Flayer(10, layer1.featureMapSize*layer1.featureMapSize*layer1.featureMapCount);
     }
     
     public int process(Image image)

@@ -96,6 +96,7 @@ public class CLayer implements Serializable
       /*  for(double[][] array : dErrorDw)
             for(double[] subArray : array)
                 Arrays.fill(subArray, 0.0);*/
+        final int kernelElements = Constants.KERNEL_ELEMENTS;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
@@ -106,7 +107,7 @@ public class CLayer implements Serializable
                 dEdY *= dErrorDx[feature * neurons + neuronIndex];
                 dErrorDy[feature][neuronIndex] = dEdY;
                 dErrorDw[feature][neuronIndex][BIAS] = dEdY;
-                for(int connectIndex = 0; connectIndex < Constants.KERNEL_ELEMENTS; connectIndex++)
+                for(int connectIndex = 0; connectIndex < kernelElements; connectIndex++)
                 {
                     dErrorDw[feature][neuronIndex][connectIndex] = dEdY
                             * input[connectIndex];
@@ -117,13 +118,15 @@ public class CLayer implements Serializable
             }
         }
 
+        
+        final double eta = Constants.ETA_LEARNIG_RATE;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
             {
-                for(int connectIndex = 0; connectIndex < Constants.KERNEL_ELEMENTS; connectIndex++)
+                for(int connectIndex = 0; connectIndex < kernelElements; connectIndex++)
                 {
-                    kernelWeights[feature][connectIndex] -= Constants.ETA_LEARNIG_RATE
+                    kernelWeights[feature][connectIndex] -= eta
                             * dErrorDw[feature][neuronIndex][connectIndex];
                 }
             }

@@ -1,9 +1,12 @@
 package kalpas.dip.general;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 
 import kalpas.dip.DataSet;
@@ -12,18 +15,30 @@ import kalpas.dip.NeuralNetwork;
 import kalpas.dip.TestSet;
 import kalpas.dip.TrainingSet;
 
-public class Trainer
+public class Trainer implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private NeuralNetwork net;
 
-    private DataSet       trainSet      = new TrainingSet();
-    private DataSet       testSet       = new TestSet();
+    transient private DataSet       trainSet      = new TrainingSet();
+    transient private DataSet       testSet       = new TestSet();
 
     private Double        ETA           = Constants.ETA_LEARNIG_RATE;
     private int           EPOCHS        = 100;
     private double        errorThresold = 0.001;
 
-    private DataSet       primarySet    = null;
+    transient private DataSet       primarySet    = null;
+    
+    private Date startTrainig = null;
+    private Date endTraining = null;
+    private long delta;
+    private long[] epochTimes;
+    private long averagePerEpoch;
+    private Date startEpoch = null;
+    private Date endEpoch = null;
+    
+    private File dir = null;
 
     private Trainer()
     {
@@ -33,6 +48,9 @@ public class Trainer
     {
         final Trainer trainer = new Trainer();
         trainer.net = network;
+        trainer.primarySet = trainer.trainSet;
+        trainer.dir = new File("dump\\"+(new Date()).getTime());
+        trainer.dir.mkdirs();
         return trainer;
 
     }
@@ -58,6 +76,9 @@ public class Trainer
 
     public void start()
     {
+        epochTimes = new long[EPOCHS];
+        startTrainig= new Date();
+        startEpoch = startTrainig;
         if(primarySet != null)
         {
             Image image = null;
@@ -71,10 +92,43 @@ public class Trainer
                         continue;
                     net.backPropagate();
                 }
+                endEpoch = new Date();
+                epochTimes[i] = endEpoch.getTime()- startEpoch.getTime();
                 dump(i);
-                Constants.ETA_LEARNIG_RATE /= 10;
+                Constants.ETA_LEARNIG_RATE /= 100;
+                startEpoch = endEpoch;
+                
             }
+            endTraining = new Date();
+            
+            averagePerEpoch = 0l;
+            for(long epoch: epochTimes)
+            {
+                averagePerEpoch +=epoch;
+            }
+            averagePerEpoch/= epochTimes.length;
+            
+            delta = endTraining.getTime() - startTrainig.getTime();
+            
+            System.out.println(this.toString());
+            save();
         }
+    }
+
+    public String getDeltaTime()
+    {
+        return extractTime(delta);
+    }
+    
+    private String extractTime(long value)
+    {
+        String time = "";
+        time = value%1000 + time;
+        value /= 1000l;
+        time = value%60 + ":" + time;
+        value/= 60l;
+        time = value%60 +":"+time;
+        return time;
     }
 
     public int test()
@@ -104,23 +158,64 @@ public class Trainer
         {
             FileOutputStream fos = new FileOutputStream(name);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(net);
+            oos.writeObject(this);
             oos.flush();
             oos.close();
         }
         catch(IOException e)
         {
-            System.err.println("smth bad with IO " + e.getStackTrace());
+            System.err.println("smth bad with IO " + e.getCause());
+        }
+    }
+    
+    private void save()
+    {
+        save(dir.getPath()+"\\"+ this.getClass().getName());
+    }
+    
+    public static Trainer load(String name)
+    {
+        try
+        {
+            FileInputStream fis = new FileInputStream(name);
+            ObjectInputStream oin = new ObjectInputStream(fis);
+            Trainer trainer = (Trainer) oin.readObject();
+           return trainer;
+        }
+        catch(Exception e)
+        {
+            System.err.println("smth bad " + e.getCause());
+            return null;
         }
     }
 
     protected void dump(int epoch)
     {
-        File dumpDir = new File("dump");
-        dumpDir.mkdirs();
-        String fileName = "dump\\" + net.getClass().toString() + "epoch"
-                + epoch + "." + (new Date()).getTime();
+        String fileName = dir.getPath()+"\\"+ this.getClass().getName() + ".epoch"
+                + epoch;
         save(fileName);
+    }
+    
+    @Override
+    public String toString()
+    {
+        String newline = System.getProperty("line.separator");
+        
+        StringBuilder string = new StringBuilder();
+        string.append("EPOCHS: "+EPOCHS);
+        string.append(newline);
+        string.append("trainig time: "+getDeltaTime());
+        string.append(newline);
+        string.append("Timings per epoch");
+        string.append(newline);
+        for(long value:epochTimes)
+        {
+            string.append(extractTime(value));
+            string.append(" ");
+        }
+        string.append(newline);
+        string.append("average per epoch: " + extractTime(averagePerEpoch));
+        return string.toString();
     }
 
     /**
@@ -172,5 +267,13 @@ public class Trainer
     public void setErrorThresold(double errorThresold)
     {
         this.errorThresold = errorThresold;
+    }
+
+    /**
+     * @return the delta
+     */
+    public long getDelta()
+    {
+        return delta;
     }
 }
