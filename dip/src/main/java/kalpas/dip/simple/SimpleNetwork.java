@@ -11,22 +11,23 @@ import kalpas.dip.NeuralNetwork;
 public class SimpleNetwork implements NeuralNetwork, Serializable
 {
     private static final long serialVersionUID = 1L;
-    
-    private double[] output;
-    private double[] dErrorDx;
-    private boolean fault;
 
-    private CLayer   layer1;
-    private Flayer   layer2;
-    
+    private double[]          output;
+    private double[]          dErrorDx;
+    private boolean           fault;
+
+    public CLayer             layer1;
+    public Flayer             layer2;
 
     public SimpleNetwork()
     {
-        dErrorDx = new double[]{0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+        dErrorDx = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0 };
         layer1 = new CLayer(24, 6, 28);
-        layer2 = new Flayer(10, layer1.featureMapSize*layer1.featureMapSize*layer1.featureMapCount);
+        layer2 = new Flayer(10, layer1.featureMapSize * layer1.featureMapSize
+                * layer1.featureMapCount);
     }
-    
+
     public int process(Image image)
     {
         fault = true;
@@ -41,7 +42,7 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
                 maxIndex = i;
             }
         }
-        if(maxIndex==image.value)
+        if(maxIndex == image.value)
             fault = false;
         getError(image.value);
         return maxIndex;
@@ -67,7 +68,8 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     }
 
     /**
-     * @param layer1 the layer1 to set
+     * @param layer1
+     *            the layer1 to set
      */
     public void setLayer1(CLayer layer1)
     {
@@ -75,7 +77,8 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     }
 
     /**
-     * @param layer2 the layer2 to set
+     * @param layer2
+     *            the layer2 to set
      */
     public void setLayer2(Flayer layer2)
     {
@@ -97,6 +100,5 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     {
         return fault;
     }
-
 
 }

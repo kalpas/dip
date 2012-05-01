@@ -12,6 +12,10 @@ public class Constants
     
     public static double ETA_LEARNIG_RATE = 0.0005;
     
+    public static double scaleY = 1.7159;
+    
+    public static double scaleX = 0.66666667;
+    
     private static Map<Double,Double> cache = new HashMap<Double, Double>();
             
     private static Double value;

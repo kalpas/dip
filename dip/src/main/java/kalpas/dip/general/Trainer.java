@@ -9,36 +9,42 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.swing.JFrame;
+
+import kalpas.dip.CLayer;
 import kalpas.dip.DataSet;
+import kalpas.dip.Flayer;
 import kalpas.dip.Image;
 import kalpas.dip.NeuralNetwork;
 import kalpas.dip.TestSet;
 import kalpas.dip.TrainingSet;
+import kalpas.dip.Visualize;
+import kalpas.dip.simple.SimpleNetwork;
 
 public class Trainer implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private NeuralNetwork net;
+    private NeuralNetwork     net;
 
-    transient private DataSet       trainSet      = new TrainingSet();
-    transient private DataSet       testSet       = new TestSet();
+    transient private DataSet trainSet         = new TrainingSet();
+    transient private DataSet testSet          = new TestSet();
 
-    private Double        ETA           = Constants.ETA_LEARNIG_RATE;
-    private int           EPOCHS        = 100;
-    private double        errorThresold = 0.001;
+    private Double            ETA              = Constants.ETA_LEARNIG_RATE;
+    private int               EPOCHS           = 100;
+    private double            errorThresold    = 0.001;
 
-    transient private DataSet       primarySet    = null;
-    
-    private Date startTrainig = null;
-    private Date endTraining = null;
-    private long delta;
-    private long[] epochTimes;
-    private long averagePerEpoch;
-    private Date startEpoch = null;
-    private Date endEpoch = null;
-    
-    private File dir = null;
+    transient private DataSet primarySet       = null;
+
+    private Date              startTrainig     = null;
+    private Date              endTraining      = null;
+    private long              delta;
+    private long[]            epochTimes;
+    private long              averagePerEpoch;
+    private Date              startEpoch       = null;
+    private Date              endEpoch         = null;
+
+    private File              dir              = null;
 
     private Trainer()
     {
@@ -49,9 +55,16 @@ public class Trainer implements Serializable
         final Trainer trainer = new Trainer();
         trainer.net = network;
         trainer.primarySet = trainer.trainSet;
-        trainer.dir = new File("dump\\"+(new Date()).getTime());
+        trainer.dir = new File("dump\\" + (new Date()).getTime());
         trainer.dir.mkdirs();
         return trainer;
+
+    }
+
+    public void reinit()
+    {
+        trainSet = new TrainingSet();
+        testSet = new TestSet();
 
     }
 
@@ -77,7 +90,7 @@ public class Trainer implements Serializable
     public void start()
     {
         epochTimes = new long[EPOCHS];
-        startTrainig= new Date();
+        startTrainig = new Date();
         startEpoch = startTrainig;
         if(primarySet != null)
         {
@@ -88,28 +101,29 @@ public class Trainer implements Serializable
                 {
                     image = primarySet.getNextImage();
                     net.process(image);
-                    if(!net.isFault()&&net.getdErrorDx()[image.value]<errorThresold)
+                    if(!net.isFault()
+                            && net.getdErrorDx()[image.value] < errorThresold)
                         continue;
                     net.backPropagate();
                 }
                 endEpoch = new Date();
-                epochTimes[i] = endEpoch.getTime()- startEpoch.getTime();
+                epochTimes[i] = endEpoch.getTime() - startEpoch.getTime();
                 dump(i);
                 Constants.ETA_LEARNIG_RATE /= 100;
                 startEpoch = endEpoch;
-                
+
             }
-            endTraining = new Date();
-            
+            endTraining = endEpoch;
+
             averagePerEpoch = 0l;
-            for(long epoch: epochTimes)
+            for(long epoch : epochTimes)
             {
-                averagePerEpoch +=epoch;
+                averagePerEpoch += epoch;
             }
-            averagePerEpoch/= epochTimes.length;
-            
+            averagePerEpoch /= epochTimes.length;
+
             delta = endTraining.getTime() - startTrainig.getTime();
-            
+
             System.out.println(this.toString());
             save();
         }
@@ -119,15 +133,15 @@ public class Trainer implements Serializable
     {
         return extractTime(delta);
     }
-    
+
     private String extractTime(long value)
     {
         String time = "";
-        time = value%1000 + time;
+        time = value % 1000 + time;
         value /= 1000l;
-        time = value%60 + ":" + time;
-        value/= 60l;
-        time = value%60 +":"+time;
+        time = value % 60 + ":" + time;
+        value /= 60l;
+        time = value % 60 + ":" + time;
         return time;
     }
 
@@ -142,7 +156,7 @@ public class Trainer implements Serializable
             output = net.process(image);
             if(output != image.value)
             {
-                System.err.println("pattern not recognized: " + image.index);
+                //System.err.println("pattern not recognized: " + image.index);
                 errors++;
             }
         }
@@ -167,12 +181,12 @@ public class Trainer implements Serializable
             System.err.println("smth bad with IO " + e.getCause());
         }
     }
-    
+
     private void save()
     {
-        save(dir.getPath()+"\\"+ this.getClass().getName());
+        save(dir.getPath() + "\\" + this.getClass().getName());
     }
-    
+
     public static Trainer load(String name)
     {
         try
@@ -180,7 +194,7 @@ public class Trainer implements Serializable
             FileInputStream fis = new FileInputStream(name);
             ObjectInputStream oin = new ObjectInputStream(fis);
             Trainer trainer = (Trainer) oin.readObject();
-           return trainer;
+            return trainer;
         }
         catch(Exception e)
         {
@@ -191,24 +205,24 @@ public class Trainer implements Serializable
 
     protected void dump(int epoch)
     {
-        String fileName = dir.getPath()+"\\"+ this.getClass().getName() + ".epoch"
-                + epoch;
+        String fileName = dir.getPath() + "\\" + this.getClass().getName()
+                + ".epoch" + epoch;
         save(fileName);
     }
-    
+
     @Override
     public String toString()
     {
         String newline = System.getProperty("line.separator");
-        
+
         StringBuilder string = new StringBuilder();
-        string.append("EPOCHS: "+EPOCHS);
+        string.append("EPOCHS: " + EPOCHS);
         string.append(newline);
-        string.append("trainig time: "+getDeltaTime());
+        string.append("trainig time: " + getDeltaTime());
         string.append(newline);
         string.append("Timings per epoch");
         string.append(newline);
-        for(long value:epochTimes)
+        for(long value : epochTimes)
         {
             string.append(extractTime(value));
             string.append(" ");
@@ -216,6 +230,28 @@ public class Trainer implements Serializable
         string.append(newline);
         string.append("average per epoch: " + extractTime(averagePerEpoch));
         return string.toString();
+    }
+
+    public void viewNetwork(int n, boolean fromTestSet)
+    {
+        JFrame frame = new JFrame("network");
+        frame.setSize(400, 800);
+        Visualize visualize = new Visualize();
+        frame.getContentPane().add(visualize);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        DataSet dataSet = fromTestSet ? testSet : trainSet;
+        Image image = dataSet.getImageBy(n);
+        net.process(image);
+
+        Visualize.drawInput(image.bytes, dataSet.columns);
+        CLayer layer1 = ((SimpleNetwork) net).layer1;
+        Visualize.drawKernels(layer1.getKernelWeights());
+        Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapCount,
+                layer1.featureMapSize);
+        Flayer layer2 = ((SimpleNetwork) net).layer2;
+
     }
 
     /**

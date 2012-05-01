@@ -33,6 +33,11 @@ public class DataSet
         counter = counter%imageCount;
         return images[counter];
     }
+    
+    public Image getImageBy(int number)
+    {
+        return images[number];
+    }
 
     protected String getLabelFile()
     {

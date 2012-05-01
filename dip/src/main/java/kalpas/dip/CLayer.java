@@ -24,6 +24,9 @@ public class CLayer implements Serializable
     private int               BIAS;
 
     private double[]          input;
+    
+    final double scaleY = Constants.scaleY;
+    final double scaleX = Constants.scaleX;
 
     public CLayer(int featureMapSize, int featureMapCount, int inputSize)
     {
@@ -55,6 +58,8 @@ public class CLayer implements Serializable
 
     public double[] process(byte[] image)
     {
+        final int kernelSize = Constants.KERNEL_SIZE;
+        
         this.input = new double[image.length];
         for(int i = 0; i < image.length; i++)
         {
@@ -69,18 +74,19 @@ public class CLayer implements Serializable
                 for(int neuronCol = 0; neuronCol < featureMapSize; neuronCol++)
                 {
                     sum += kernelWeights[feature][BIAS];
-                    for(int kernelRow = 0; kernelRow < Constants.KERNEL_SIZE; kernelRow++)
+                    for(int kernelRow = 0; kernelRow < kernelSize; kernelRow++)
                     {
-                        for(int kernelCol = 0; kernelCol < Constants.KERNEL_SIZE; kernelCol++)
+                        for(int kernelCol = 0; kernelCol < kernelSize; kernelCol++)
                         {
                             sum += this.input[(neuronRow + kernelRow)
                                     * inputSize + (neuronCol + kernelCol)]
                                     * kernelWeights[feature][kernelRow
-                                            * Constants.KERNEL_SIZE + kernelCol];
+                                            * kernelSize + kernelCol];
                         }
                     }
+                    
                     featureMaps[feature * neurons
-                            + (neuronRow * featureMapSize + neuronCol)] = 1.7159*Math.tanh(0.66666667*sum);
+                            + (neuronRow * featureMapSize + neuronCol)] = scaleY*Math.tanh(scaleX*sum);
                     sum = 0;
                 }
             }
@@ -103,7 +109,7 @@ public class CLayer implements Serializable
             {
                
                 outputValue = featureMaps[feature * neurons + neuronIndex];
-                dEdY =  0.66666667/1.7159*(1.7159+outputValue)*(1.7159-outputValue);
+                dEdY =  scaleX/scaleY*(scaleY+outputValue)*(scaleY-outputValue);
                 dEdY *= dErrorDx[feature * neurons + neuronIndex];
                 dErrorDy[feature][neuronIndex] = dEdY;
                 dErrorDw[feature][neuronIndex][BIAS] = dEdY;
@@ -124,6 +130,7 @@ public class CLayer implements Serializable
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
             {
+                kernelWeights[feature][BIAS] -= eta * dErrorDw[feature][neuronIndex][BIAS];
                 for(int connectIndex = 0; connectIndex < kernelElements; connectIndex++)
                 {
                     kernelWeights[feature][connectIndex] -= eta
