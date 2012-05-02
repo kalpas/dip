@@ -2,12 +2,16 @@ package kalpas.dip.app;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import javax.swing.GroupLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import kalpas.dip.DataSet;
 import kalpas.dip.Image;
@@ -17,15 +21,18 @@ import kalpas.dip.general.Trainer;
 
 public class NeuralNetworkBanch
 {
-    
-    private static Canvas imageCanvas = null;
+    private static int     inputSize       = 28;
+    private static int     imageCanvasSize = 196;
+    private static JFrame  frame;
+    private static Canvas  imageCanvas     = null;
+    private static int     desiredOutput   = -1;
     private static int[][] points;
-    
+
     private static Trainer trainer;
-    
-    private double ETA = 0.001;
-    
-    private double mseMin = 0.001;
+
+    private double         ETA             = 0.001;
+
+    private double         mseMin          = 0.001;
 
     public static boolean save(String... args)
     {
@@ -80,6 +87,7 @@ public class NeuralNetworkBanch
         if(trainer != null)
         {
             trainer.test();
+            result  = true;
         }
         else
         {
@@ -162,10 +170,11 @@ public class NeuralNetworkBanch
 
         if(pattern != null)
         {
-            JFrame frame = new JFrame(""+pattern.value);
+            JFrame frame = new JFrame("" + pattern.value);
             PatternPane pane = new PatternPane();
             final int magnification = pane.getMAGNIFICATION();
-            frame.setSize(dataSet.columns*magnification,dataSet.rows*magnification+30);
+            frame.setSize(dataSet.columns * magnification, dataSet.rows
+                    * magnification + 30);
             pane.setPattern(pattern);
             frame.getContentPane().add(pane);
             frame.setVisible(true);
@@ -173,61 +182,163 @@ public class NeuralNetworkBanch
         }
         return result;
     }
-    
-    public static boolean drawDigit()
+
+    public static boolean drawDigit(String... args)
     {
         boolean result = false;
-        JFrame frame = new JFrame("Draw a digit");
+        if(trainer == null || frame!=null)
+            return result;
+
+        desiredOutput = -1;
+        try
+        {
+            desiredOutput = Integer.parseInt(args[0]);
+        }
+        catch(Exception e)
+        {
+        }
+        if(desiredOutput < 0 || desiredOutput > 9)
+        {
+            System.out.println("digits 0 - 9 are expected");
+            return result;
+        }
+
+        frame = new JFrame("Draw a digit");
+        frame.setSize(imageCanvasSize, imageCanvasSize + 30);
+        frame.setResizable(false);
         imageCanvas = new Canvas();
         imageCanvas.setBackground(new Color(0xFFFFFFFF));
-        imageCanvas.setSize(w, h);
-        points = new int[w][h];
-        //-----
-        imageCanvas.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+        imageCanvas.setSize(imageCanvasSize, imageCanvasSize);
+        points = new int[imageCanvasSize][imageCanvasSize];
+        // -----
+        imageCanvas.addMouseListener(new java.awt.event.MouseAdapter(){
+            public void mouseEntered(java.awt.event.MouseEvent evt)
+            {
                 canvasImageMouseDummy(evt);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                canvasImageMouseDummy(evt);
-            }
-        });
-        //---
-        imageCanvas.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                canvasImageMouseDragged(evt);
-            }
-            public void mouseMoved(java.awt.event.MouseEvent evt) {
+
+            public void mousePressed(java.awt.event.MouseEvent evt)
+            {
                 canvasImageMouseDummy(evt);
             }
         });
-        
-        
+        // ---
+        imageCanvas
+                .addMouseMotionListener(new java.awt.event.MouseMotionAdapter(){
+                    public void mouseDragged(java.awt.event.MouseEvent evt)
+                    {
+                        canvasImageMouseDragged(evt);
+                    }
+
+                    public void mouseMoved(java.awt.event.MouseEvent evt)
+                    {
+                        canvasImageMouseDummy(evt);
+                    }
+                });
+
+        imageCanvas.addKeyListener(new KeyListener(){
+
+            public void keyTyped(KeyEvent e)
+            {
+                decode(e);
+            }
+
+            public void keyReleased(KeyEvent e)
+            {
+            }
+
+            public void keyPressed(KeyEvent e)
+            {
+            }
+        });
+
+        JPanel mainPanel = new JPanel();
+        GroupLayout layout = new GroupLayout(mainPanel);
+        mainPanel.setLayout(layout);
+
+        layout.setHorizontalGroup(layout.createParallelGroup(
+                GroupLayout.Alignment.LEADING).addComponent(imageCanvas,
+                GroupLayout.PREFERRED_SIZE, imageCanvasSize,
+                GroupLayout.PREFERRED_SIZE));
+
+        layout.setVerticalGroup(layout.createParallelGroup(
+                GroupLayout.Alignment.LEADING).addComponent(imageCanvas,
+                GroupLayout.PREFERRED_SIZE, imageCanvasSize,
+                GroupLayout.PREFERRED_SIZE));
+
+        frame.getContentPane().add(mainPanel);
+        frame.setVisible(true);
+        result = true;
+
         return result;
     }
 
     public static boolean setProperty(String... args)
     {
-        
         return false;
     }
-    
-    //--------------
-    
-    private static void canvasImageMouseDummy(java.awt.event.MouseEvent evt) {                                         
-        // TODO add your handling code here:       
-    }                                        
 
-    private static void canvasImageMouseDragged(java.awt.event.MouseEvent evt) {                                         
+    // --------------
+
+    private static void decode(KeyEvent e)
+    {
+        if(e.getKeyChar() == '\n')
+        {
+            frame.setVisible(false);
+            frame.dispose();
+            frame = null;
+            imageCanvas = null;
+            Image imageToTest = new Image(scale(points), desiredOutput, -1);
+            points = null;
+            trainer.test(imageToTest);
+        }
+    }
+
+    private static byte[] scale(int[][] input)
+    {
+        byte[] result = new byte[inputSize * inputSize];
+        int bute = 0;
+        for(int y = 0; y < inputSize; y++)
+        {
+            for(int x = 0; x < inputSize; x++)
+            {
+                bute = 0;
+                for(int i = y * 7; i < y * 7 + 7; i++)
+                {
+                    for(int j = x * 7; j < x * 7 + 7; j++)
+                    {
+                        bute += input[i][j];
+                    }
+                }
+                bute *= 255;
+                bute /= 49;
+                result[y * inputSize + x] = (byte) bute;
+            }
+        }
+        return result;
+    }
+
+    private static void canvasImageMouseDummy(java.awt.event.MouseEvent evt)
+    {
+        // TODO add your handling code here:
+    }
+
+    private static void canvasImageMouseDragged(java.awt.event.MouseEvent evt)
+    {
         int x = evt.getX();
-        int y = evt.getY();       
-        if (x >= 2 && y >= 2 && x <= imageCanvas.getWidth()-2 && y <= imageCanvas.getHeight()-2) {
-            imageCanvas.getGraphics().setColor(Color.black);        
-            imageCanvas.getGraphics().fillRect(x - 2, y - 2, 4, 4);           
-            for (int i = x - 2; i <= x + 1; i++) {
-                for (int j = y - 2; j <= y + 1; j++) {
+        int y = evt.getY();
+        if(x >= 2 && y >= 2 && x <= imageCanvas.getWidth() - 2
+                && y <= imageCanvas.getHeight() - 2)
+        {
+            imageCanvas.getGraphics().setColor(Color.black);
+            imageCanvas.getGraphics().fillRect(x - 6, y - 6, 12, 12);
+            for(int i = x - 2; i <= x + 1; i++)
+            {
+                for(int j = y - 2; j <= y + 1; j++)
+                {
                     points[i][j] = 1;
                 }
             }
-        }        
+        }
     }
 }

@@ -1,5 +1,6 @@
 package kalpas.dip.app;
 
+import kalpas.dip.app.actions.DrawAction;
 import kalpas.dip.app.actions.LoadAction;
 import kalpas.dip.app.actions.NewAction;
 import kalpas.dip.app.actions.SaveAction;
@@ -17,7 +18,8 @@ public enum AppCmd
     Test(new TestAction(),0),
     SetProperty(new SetPropAction(),2),
     New(new NewAction(),0),
-    ShowPattern(new ShowPatternAction(),2);
+    ShowPattern(new ShowPatternAction(),2),
+    DrawDigit(new DrawAction(),1);
     
     private Action action;
     

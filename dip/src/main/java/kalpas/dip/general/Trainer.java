@@ -78,6 +78,7 @@ public class Trainer implements Serializable
         this.dir.mkdirs();
         this.trainMSE = new double[this.EPOCHS][this.trainSet.imageCount];
         this.testMSE = new double[this.testSet.imageCount];
+        df = new DecimalFormat("#0.##");
 
     }
 
@@ -182,11 +183,25 @@ public class Trainer implements Serializable
                 System.err.println("pattern not recognized: " + image.index);
                 errors++;
             }
-            System.out.println(df.format(100.0*j/primarySet.imageCount)+" %");
+            System.out.println(df.format(100.0*j/testSet.imageCount)+" %");
         }
         System.out.println(errors + " - " + errors * 100 / testSet.imageCount
                 + "%");
         return errors;
+
+    }
+    
+    public int test(Image image)
+    {
+        int output = -1;
+        output = net.process(image);
+        System.out.println("digit is: "+output);
+        System.out.println("MSE: "+net.getMSE());
+        if(output != image.value)
+        {
+            System.err.println("ups!!! wrong guess: " + image.index);
+        }
+        return output;
 
     }
 
@@ -270,7 +285,6 @@ public class Trainer implements Serializable
         Visualize visualize = new Visualize();
         frame.getContentPane().add(visualize);
         frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         DataSet dataSet = fromTestSet ? testSet : trainSet;
         Image image = dataSet.getImageBy(n);
