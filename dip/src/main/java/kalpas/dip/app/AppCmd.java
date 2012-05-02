@@ -4,6 +4,7 @@ import kalpas.dip.app.actions.LoadAction;
 import kalpas.dip.app.actions.NewAction;
 import kalpas.dip.app.actions.SaveAction;
 import kalpas.dip.app.actions.SetPropAction;
+import kalpas.dip.app.actions.ShowPatternAction;
 import kalpas.dip.app.actions.TestAction;
 import kalpas.dip.app.actions.TrainAction;
 
@@ -15,7 +16,8 @@ public enum AppCmd
     Train(new TrainAction(),1),
     Test(new TestAction(),0),
     SetProperty(new SetPropAction(),2),
-    New(new NewAction(),0);
+    New(new NewAction(),0),
+    ShowPattern(new ShowPatternAction(),2);
     
     private Action action;
     

@@ -387,4 +387,20 @@ public class Trainer implements Serializable
     {
         return testMSE;
     }
+
+    /**
+     * @return the trainSet
+     */
+    public DataSet getTrainSet()
+    {
+        return trainSet;
+    }
+
+    /**
+     * @return the testSet
+     */
+    public DataSet getTestSet()
+    {
+        return testSet;
+    }
 }
