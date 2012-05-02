@@ -7,8 +7,12 @@ public class Constants
 {
 
     public static final int KERNEL_SIZE = 5;
+    
+    public static final int KERNEL_SIZE2 = 4;
 
     public static final int KERNEL_ELEMENTS = KERNEL_SIZE * KERNEL_SIZE;
+    
+    public static final int KERNEL_ELEMENTS2 = KERNEL_SIZE2 * KERNEL_SIZE2;
     
     public static double ETA_LEARNIG_RATE = 0.0005;
     

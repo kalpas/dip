@@ -18,7 +18,7 @@ public class Flayer implements Serializable
     private double[][] weights;
     private double[]   output;
     
-    private int        neurons;
+    public int        neurons;
     private int        inputs;
     
 //    final double scaleY = Constants.scaleY;

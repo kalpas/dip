@@ -34,7 +34,7 @@ public class CLayer2 implements Serializable
             int inputSize)
     {
 
-        this.BIAS = Constants.KERNEL_ELEMENTS;
+        this.BIAS = Constants.KERNEL_ELEMENTS2;
 
         this.featureMapCount = featureMapCount;
         this.featureMapSize = featureMapSize;
@@ -42,10 +42,11 @@ public class CLayer2 implements Serializable
         this.neurons = featureMapSize * featureMapSize;
         this.inputMaps = inputMaps;
 
-        kernelWeights = new double[featureMapCount][inputMaps][Constants.KERNEL_ELEMENTS + 1];
+        kernelWeights = new double[featureMapCount][inputMaps][Constants.KERNEL_ELEMENTS2 + 1];
         featureMaps = new double[featureMapCount * neurons];
         dErrorDy = new double[featureMapCount][neurons];
-        dErrorDw = new double[featureMapCount][neurons][inputMaps][Constants.KERNEL_ELEMENTS + 1];
+        dErrorDw = new double[featureMapCount][neurons][inputMaps][Constants.KERNEL_ELEMENTS2 + 1];
+        dErrorDxm1 = new double[inputMaps*inputSize*inputSize];
         // dErrorDxm1 = new double[featureMapCount][fmapElCount];
 
         initKernelWeights();
@@ -54,7 +55,7 @@ public class CLayer2 implements Serializable
 
     public double[] process(double[] input)
     {
-        final int kernelSize = Constants.KERNEL_SIZE;
+        final int kernelSize = Constants.KERNEL_SIZE2;
         final int sourceMapSize = inputSize * inputSize;
 
         this.input = input;
@@ -73,9 +74,9 @@ public class CLayer2 implements Serializable
                         {
                             for(int kernelCol = 0; kernelCol < kernelSize; kernelCol++)
                             {
-                                sum += this.input[(sourceFeture * sourceMapSize + (neuronRow + kernelRow)
+                                sum += this.input[(sourceFeture * sourceMapSize + (neuronRow*2 + kernelRow)
                                         * inputSize)
-                                        + (neuronCol + kernelCol)]
+                                        + (neuronCol*2 + kernelCol)]
                                         * kernelWeights[feature][sourceFeture][kernelRow
                                                 * kernelSize + kernelCol];
                             }
@@ -94,10 +95,10 @@ public class CLayer2 implements Serializable
         return featureMaps;
     }
 
-    public void backPropagate(double[] dErrorDx)
+    public double[] backPropagate(double[] dErrorDx)
     {
         final int sourceMapSize = inputSize * inputSize;
-        final int kernelSize = Constants.KERNEL_SIZE;
+        final int kernelSize = Constants.KERNEL_SIZE2;
         
         double dEdY;
         double outputValue;
@@ -106,7 +107,7 @@ public class CLayer2 implements Serializable
         /*  for(double[][] array : dErrorDw)
               for(double[] subArray : array)
                   Arrays.fill(subArray, 0.0);*/
-        final int kernelElements = Constants.KERNEL_ELEMENTS;
+        final int kernelElements = Constants.KERNEL_ELEMENTS2;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
 //            for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
@@ -134,9 +135,9 @@ public class CLayer2 implements Serializable
                             dErrorDw[feature][neuronRow*featureMapSize+neuronCol][sourceFeture][kernelRow*kernelSize+kernelCol] = dEdY
                                     * input[neuronRow*featureMapSize+neuronCol];
     
-                            dErrorDxm1[(sourceFeture * sourceMapSize + (neuronRow + kernelRow)
+                            dErrorDxm1[(sourceFeture * sourceMapSize + (neuronRow*2 + kernelRow)
                                        * inputSize)
-                                       + (neuronCol + kernelCol)] += dEdY
+                                       + (neuronCol*2 + kernelCol)] += dEdY
                              * kernelWeights[feature][sourceFeture][kernelRow*kernelSize+kernelCol];
                             }
                         }
@@ -147,6 +148,7 @@ public class CLayer2 implements Serializable
         }
 
         final double eta = Constants.ETA_LEARNIG_RATE;
+        
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
@@ -163,6 +165,8 @@ public class CLayer2 implements Serializable
                 }
             }
         }
+        
+        return dErrorDxm1;
 
     }
 
@@ -170,10 +174,10 @@ public class CLayer2 implements Serializable
     {
         Random randomizer = new Random();
         final double pow = Math
-                .pow(Constants.KERNEL_ELEMENTS * inputMaps, -0.5);
+                .pow(Constants.KERNEL_ELEMENTS2 * inputMaps, -0.5);
         for(double[][] array : kernelWeights)
             for(int s = 0; s < inputMaps; s++)
-                for(int i = 0; i < Constants.KERNEL_ELEMENTS; i++)
+                for(int i = 0; i < Constants.KERNEL_ELEMENTS2; i++)
                     array[s][i] = randomizer.nextGaussian() * pow;
     }
 

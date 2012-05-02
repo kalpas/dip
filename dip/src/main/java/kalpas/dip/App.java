@@ -19,24 +19,44 @@ public class App
     {
         System.out.println("Start");
 
-        if(false)
+        if(true)
         {
+            Constants.ETA_LEARNIG_RATE = 0.0007;
+            
             FileInputStream fis = new FileInputStream(
-                    "dump\\1335915322734\\kalpas.dip.general.Trainer");
+                    "dump\\1335932552421\\kalpas.dip.general.Trainer");
             ObjectInputStream oin = new ObjectInputStream(fis);
             Trainer trainer = (Trainer) oin.readObject();
-
-            System.out.println("Loaded");
             trainer.reinit();
+            
+//            NeuralNet net = new NeuralNet();
+//            net.layer1 = ((NeuralNet)(trainer.getNet())).layer1;
+//            trainer = Trainer.train(net).onTrainSet();
+            
+            trainer.test();
+            
+            //trainer.start(2);
+//            trainer.test();
+            
+           /* NeuralNet net = new NeuralNet();
+            net.layer1 = ((SimpleNetwork)(trainer.getNet())).layer1;
+            
+            
+            Trainer neuralNet = Trainer.train(net).onTrainSet();
+            neuralNet.save("WIP");*/
+            
+
+//            System.out.println("Loaded");
+//            trainer.reinit();
             //trainer.test();
-            trainer.viewNetwork(999, true);
+            //trainer.viewNetwork(999, true);
         }
         else
         {
             Constants.ETA_LEARNIG_RATE = 0.001;
             
             /*FileInputStream fis = new FileInputStream(
-                    "dump\\1335919520546\\kalpas.dip.general.Trainer");
+                    "dump\\1335932552421\\kalpas.dip.general.Trainer");
             ObjectInputStream oin = new ObjectInputStream(fis);
             Trainer trainer = (Trainer) oin.readObject();
 

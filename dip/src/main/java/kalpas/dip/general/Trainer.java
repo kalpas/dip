@@ -32,7 +32,7 @@ public class Trainer implements Serializable
 
     private Double            ETA              = Constants.ETA_LEARNIG_RATE;
     private int               EPOCHS           = 100;
-    private double            errorThresold    = 0.001;
+    private double            errorThresold    = 0.0000001;
 
     transient private DataSet primarySet       = null;
 
@@ -163,7 +163,7 @@ public class Trainer implements Serializable
             output = net.process(image);
             if(output != image.value)
             {
-                //System.err.println("pattern not recognized: " + image.index);
+                System.err.println("pattern not recognized: " + image.index);
                 errors++;
             }
         }
@@ -244,6 +244,7 @@ public class Trainer implements Serializable
         return (x-t)*(x-t);
     }
 
+    @Deprecated
     public void viewNetwork(int n, boolean fromTestSet)
     {
         JFrame frame = new JFrame("network");
@@ -341,5 +342,13 @@ public class Trainer implements Serializable
     public void setDir(File dir)
     {
         this.dir = dir;
+    }
+
+    /**
+     * @return the net
+     */
+    public NeuralNetwork getNet()
+    {
+        return net;
     }
 }
