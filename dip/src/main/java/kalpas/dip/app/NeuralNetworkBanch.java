@@ -291,6 +291,14 @@ public class NeuralNetworkBanch
             Image imageToTest = new Image(scale(points), desiredOutput, -1);
             points = null;
             trainer.test(imageToTest);
+            JFrame frame = new JFrame("" + imageToTest.value);
+            PatternPane pane = new PatternPane();
+            final int magnification = pane.getMAGNIFICATION();
+            frame.setSize(inputSize * magnification, inputSize
+                    * magnification + 30);
+            pane.setPattern(imageToTest);
+            frame.getContentPane().add(pane);
+            frame.setVisible(true);
         }
     }
 
@@ -332,11 +340,11 @@ public class NeuralNetworkBanch
         {
             imageCanvas.getGraphics().setColor(Color.black);
             imageCanvas.getGraphics().fillRect(x - 6, y - 6, 12, 12);
-            for(int i = x - 2; i <= x + 1; i++)
+            for(int i = x - 6; i <= x + 5; i++)
             {
-                for(int j = y - 2; j <= y + 1; j++)
+                for(int j = y - 6; j <= y + 5; j++)
                 {
-                    points[i][j] = 1;
+                    points[j][i] = 1;
                 }
             }
         }

@@ -199,7 +199,7 @@ public class Trainer implements Serializable
         System.out.println("MSE: "+net.getMSE());
         if(output != image.value)
         {
-            System.err.println("ups!!! wrong guess: " + image.index);
+            System.err.println("ups!!! wrong guess: " + image.value);
         }
         return output;
 
