@@ -151,7 +151,7 @@ public class DataSet
     public void createShift()
     {
         Random random = new Random();
-        shift = Math.abs(random.nextInt())%imageCount+imageCount/2;
+        shift = (Math.abs(random.nextInt())%imageCount)/2+imageCount/2;
         if(shift!=0&&shift%2 ==0)
             shift -=1;
     }

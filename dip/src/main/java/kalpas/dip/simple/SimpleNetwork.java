@@ -60,7 +60,9 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     private void getError(int n)
     {
         Arrays.fill(dErrorDx, -1.0);
+        //Arrays.fill(dErrorDx, -1.0*Constants.scaleY);
         dErrorDx[n] = 1.0;
+        //dErrorDx[n] = 1.0*Constants.scaleY;
         for(int i = 0; i < 10; i++)
         {
             dErrorDx[i] = output[i] - dErrorDx[i];

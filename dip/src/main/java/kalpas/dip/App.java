@@ -1,6 +1,8 @@
 package kalpas.dip;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import kalpas.dip.general.Constants;
 import kalpas.dip.general.Trainer;
@@ -12,42 +14,54 @@ import kalpas.dip.simple.SimpleNetwork;
  */
 public class App
 {
-    private static TrainingSet trainingSet;
-    private static TestSet     testSet;
-    private static double[]    dErrorDx;
-
-    static
-    {
-        trainingSet = new TrainingSet();
-        testSet = new TestSet();
-        dErrorDx = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0 };
-
-    }
-
-    public static void main(String[] args) throws IOException, ClassNotFoundException
+    public static void main(String[] args) throws IOException,
+            ClassNotFoundException
     {
         System.out.println("Start");
-        
-      /*  FileInputStream fis = new FileInputStream("dump\\1335895563484\\kalpas.dip.general.Trainer");
-        ObjectInputStream oin = new ObjectInputStream(fis);
-        Trainer trainer = (Trainer)oin.readObject();
-        
-        System.out.println("Loaded");
-        trainer.reinit();
-        trainer.test();
-        trainer.viewNetwork(999, true);*/
-        
-        
-        Constants.ETA_LEARNIG_RATE = 0.00005;
-        Trainer simpleNetworkTrainer = Trainer.train(new SimpleNetwork()).onTrainSet();
-        simpleNetworkTrainer.start(1);
-        System.out.println("Trained");
-        simpleNetworkTrainer.test();
-        System.out.println("Tested");
-        System.out.println("Finished");
-        simpleNetworkTrainer.viewNetwork(9999, true);
-        
+
+        if(false)
+        {
+            FileInputStream fis = new FileInputStream(
+                    "dump\\1335915322734\\kalpas.dip.general.Trainer");
+            ObjectInputStream oin = new ObjectInputStream(fis);
+            Trainer trainer = (Trainer) oin.readObject();
+
+            System.out.println("Loaded");
+            trainer.reinit();
+            //trainer.test();
+            trainer.viewNetwork(999, true);
+        }
+        else
+        {
+            Constants.ETA_LEARNIG_RATE = 0.001;
+            
+            /*FileInputStream fis = new FileInputStream(
+                    "dump\\1335919520546\\kalpas.dip.general.Trainer");
+            ObjectInputStream oin = new ObjectInputStream(fis);
+            Trainer trainer = (Trainer) oin.readObject();
+
+            System.out.println("Loaded");
+            trainer.reinit();
+            trainer.setDir(new File("1"));
+            
+            trainer.viewNetwork(1, true);
+            
+            trainer.test();
+            trainer.onTestSet();
+            */
+            
+            
+            Trainer trainer = Trainer.train(new SimpleNetwork()).onTrainSet();
+            trainer.viewNetwork(1, true);
+            
+            trainer.start(5);
+            System.out.println("Trained");
+            trainer.test();
+            System.out.println("Tested");
+            System.out.println("Finished");
+            trainer.viewNetwork(7777, true);
+        }
+
         /*System.out.println("Hello neural network world!");
 
         JFrame frame = new JFrame("Frame in Java Swing");

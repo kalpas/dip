@@ -25,8 +25,8 @@ public class CLayer implements Serializable
 
     private double[]          input;
     
-    final double scaleY = Constants.scaleY;
-    final double scaleX = Constants.scaleX;
+//    final double scaleY = Constants.scaleY;
+//    final double scaleX = Constants.scaleX;
 
     public CLayer(int featureMapSize, int featureMapCount, int inputSize)
     {
@@ -46,14 +46,6 @@ public class CLayer implements Serializable
 
         initKernelWeights();
 
-    }
-
-    @Deprecated
-    private double activationFunctionDerivative(int feature, int index)
-    {
-        //(0.66666667/1.7159*(1.7159+(S))*(1.7159-(S)))
-        return (0.66666667/1.7159*(1.7159+featureMaps[feature * neurons + index])*(1.7159-featureMaps[feature * neurons + index]));
-        //return 1 - Math.pow(featureMaps[feature * neurons + index], 2);
     }
 
     public double[] process(byte[] image)
@@ -84,9 +76,10 @@ public class CLayer implements Serializable
                                             * kernelSize + kernelCol];
                         }
                     }
-                    
                     featureMaps[feature * neurons
-                            + (neuronRow * featureMapSize + neuronCol)] = scaleY*Math.tanh(scaleX*sum);
+                                + (neuronRow * featureMapSize + neuronCol)] = Math.tanh(sum);
+//                    featureMaps[feature * neurons
+//                            + (neuronRow * featureMapSize + neuronCol)] = scaleY*Math.tanh(scaleX*sum);
                     sum = 0;
                 }
             }
@@ -109,7 +102,8 @@ public class CLayer implements Serializable
             {
                
                 outputValue = featureMaps[feature * neurons + neuronIndex];
-                dEdY =  scaleX/scaleY*(scaleY+outputValue)*(scaleY-outputValue);
+                dEdY =  1 - outputValue*outputValue;
+                //dEdY =  scaleX/scaleY*(scaleY+outputValue)*(scaleY-outputValue);
                 dEdY *= dErrorDx[feature * neurons + neuronIndex];
                 dErrorDy[feature][neuronIndex] = dEdY;
                 dErrorDw[feature][neuronIndex][BIAS] = dEdY;

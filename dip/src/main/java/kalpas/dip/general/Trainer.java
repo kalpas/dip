@@ -65,6 +65,9 @@ public class Trainer implements Serializable
     {
         trainSet = new TrainingSet();
         testSet = new TestSet();
+        this.primarySet = this.trainSet;
+        this.dir = new File("dump\\" + (new Date()).getTime());
+        this.dir.mkdirs();
 
     }
 
@@ -101,16 +104,20 @@ public class Trainer implements Serializable
                 {
                     image = primarySet.getNextImage();
                     net.process(image);
+                    double mse = net.getdErrorDx()[image.value]*net.getdErrorDx()[image.value];
                     if(!net.isFault()
-                            && net.getdErrorDx()[image.value] < errorThresold)
+                            && mse < errorThresold)
                         continue;
                     net.backPropagate();
                 }
                 endEpoch = new Date();
                 epochTimes[i] = endEpoch.getTime() - startEpoch.getTime();
                 dump(i);
-                Constants.ETA_LEARNIG_RATE /= 100;
-                startEpoch = endEpoch;
+                //Constants.ETA_LEARNIG_RATE /= 100;
+                //startEpoch = endEpoch;
+                System.out.println("EPOCH "+i+" is finished");
+                test();
+                startEpoch = new Date();
 
             }
             endTraining = endEpoch;
@@ -231,11 +238,16 @@ public class Trainer implements Serializable
         string.append("average per epoch: " + extractTime(averagePerEpoch));
         return string.toString();
     }
+    
+    public double getMse(double x, double t)
+    {
+        return (x-t)*(x-t);
+    }
 
     public void viewNetwork(int n, boolean fromTestSet)
     {
         JFrame frame = new JFrame("network");
-        frame.setSize(400, 800);
+        frame.setSize(800, 900);
         Visualize visualize = new Visualize();
         frame.getContentPane().add(visualize);
         frame.setVisible(true);
@@ -251,6 +263,8 @@ public class Trainer implements Serializable
         Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapCount,
                 layer1.featureMapSize);
         Flayer layer2 = ((SimpleNetwork) net).layer2;
+        Visualize.draw2LayerWeights(layer2.getWeights(), layer1.featureMapCount*layer1.featureMapSize, layer1.featureMapSize);
+        Visualize.drawOutput(layer2.getOutput());
 
     }
 
@@ -311,5 +325,21 @@ public class Trainer implements Serializable
     public long getDelta()
     {
         return delta;
+    }
+
+    /**
+     * @return the dir
+     */
+    public File getDir()
+    {
+        return dir;
+    }
+
+    /**
+     * @param dir the dir to set
+     */
+    public void setDir(File dir)
+    {
+        this.dir = dir;
     }
 }

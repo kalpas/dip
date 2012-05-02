@@ -21,8 +21,8 @@ public class Flayer implements Serializable
     private int        neurons;
     private int        inputs;
     
-    final double scaleY = Constants.scaleY;
-    final double scaleX = Constants.scaleX;
+//    final double scaleY = Constants.scaleY;
+//    final double scaleX = Constants.scaleX;
     
     private int BIAS;
 
@@ -52,7 +52,8 @@ public class Flayer implements Serializable
             {
                 sum += input[inputIndex] * weights[neuronIndex][inputIndex];
             }
-            output[neuronIndex] = scaleY*Math.tanh(scaleX*sum);
+            output[neuronIndex] = Math.tanh(sum);
+            //output[neuronIndex] = scaleY*Math.tanh(scaleX*sum);
         }
         return output;
     }
@@ -67,7 +68,8 @@ public class Flayer implements Serializable
         for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
         {
             outputValue = output[neuronIndex];
-            dEdY = scaleX/scaleY*(scaleY+outputValue)*(scaleY-outputValue);
+            dEdY = 1 - outputValue*outputValue;
+//            dEdY = scaleX*scaleY*(1 - outputValue*outputValue);
             dEdY *= dErrorDx[neuronIndex];
             
             dErrorDy[neuronIndex] = dEdY;
