@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import javax.swing.JFrame;
@@ -31,8 +32,8 @@ public class Trainer implements Serializable
     transient private DataSet testSet          = new TestSet();
 
     private Double            ETA              = Constants.ETA_LEARNIG_RATE;
-    private int               EPOCHS           = 100;
-    private double            errorThresold    = 0.0000001;
+    private int               EPOCHS           = 10;
+    private double            errorThresold    = 0.001;
 
     transient private DataSet primarySet       = null;
 
@@ -44,7 +45,12 @@ public class Trainer implements Serializable
     private Date              startEpoch       = null;
     private Date              endEpoch         = null;
 
+    private double[][]        trainMSE;
+    private double[]          testMSE;
+
     private File              dir              = null;
+    
+    private DecimalFormat df = new DecimalFormat("#0.##");
 
     private Trainer()
     {
@@ -57,6 +63,8 @@ public class Trainer implements Serializable
         trainer.primarySet = trainer.trainSet;
         trainer.dir = new File("dump\\" + (new Date()).getTime());
         trainer.dir.mkdirs();
+        trainer.trainMSE = new double[trainer.EPOCHS][trainer.trainSet.imageCount];
+        trainer.testMSE = new double[trainer.testSet.imageCount];
         return trainer;
 
     }
@@ -68,18 +76,22 @@ public class Trainer implements Serializable
         this.primarySet = this.trainSet;
         this.dir = new File("dump\\" + (new Date()).getTime());
         this.dir.mkdirs();
+        this.trainMSE = new double[this.EPOCHS][this.trainSet.imageCount];
+        this.testMSE = new double[this.testSet.imageCount];
 
     }
 
     public Trainer onTrainSet()
     {
         this.primarySet = trainSet;
+        this.trainMSE = new double[this.EPOCHS][this.primarySet.imageCount];
         return this;
     }
 
     public Trainer onTestSet()
     {
         this.primarySet = testSet;
+        this.trainMSE = new double[this.EPOCHS][this.primarySet.imageCount];
         return this;
     }
 
@@ -104,18 +116,20 @@ public class Trainer implements Serializable
                 {
                     image = primarySet.getNextImage();
                     net.process(image);
-                    double mse = net.getdErrorDx()[image.value]*net.getdErrorDx()[image.value];
-                    if(!net.isFault()
-                            && mse < errorThresold)
+                    double mse = net.getMSE();
+                    trainMSE[i][j] = mse;
+                    if(!net.isFault() && mse < errorThresold)
                         continue;
                     net.backPropagate();
+                    
+                    System.out.println(df.format(100.0*j/primarySet.imageCount)+" %");
                 }
                 endEpoch = new Date();
                 epochTimes[i] = endEpoch.getTime() - startEpoch.getTime();
                 dump(i);
-                //Constants.ETA_LEARNIG_RATE /= 100;
-                //startEpoch = endEpoch;
-                System.out.println("EPOCH "+i+" is finished");
+                // Constants.ETA_LEARNIG_RATE /= 100;
+                // startEpoch = endEpoch;
+                System.out.println("EPOCH " + i + " is finished");
                 test();
                 startEpoch = new Date();
 
@@ -161,11 +175,14 @@ public class Trainer implements Serializable
         {
             image = testSet.getNextImage();
             output = net.process(image);
+            double MSE = net.getMSE();
+            testMSE[j] = MSE;
             if(output != image.value)
             {
                 System.err.println("pattern not recognized: " + image.index);
                 errors++;
             }
+            System.out.println(df.format(100.0*j/primarySet.imageCount)+" %");
         }
         System.out.println(errors + " - " + errors * 100 / testSet.imageCount
                 + "%");
@@ -238,10 +255,11 @@ public class Trainer implements Serializable
         string.append("average per epoch: " + extractTime(averagePerEpoch));
         return string.toString();
     }
-    
+
+    @Deprecated
     public double getMse(double x, double t)
     {
-        return (x-t)*(x-t);
+        return (x - t) * (x - t);
     }
 
     @Deprecated
@@ -264,7 +282,8 @@ public class Trainer implements Serializable
         Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapCount,
                 layer1.featureMapSize);
         Flayer layer2 = ((SimpleNetwork) net).layer2;
-        Visualize.draw2LayerWeights(layer2.getWeights(), layer1.featureMapCount*layer1.featureMapSize, layer1.featureMapSize);
+        Visualize.draw2LayerWeights(layer2.getWeights(), layer1.featureMapCount
+                * layer1.featureMapSize, layer1.featureMapSize);
         Visualize.drawOutput(layer2.getOutput());
 
     }
@@ -337,7 +356,8 @@ public class Trainer implements Serializable
     }
 
     /**
-     * @param dir the dir to set
+     * @param dir
+     *            the dir to set
      */
     public void setDir(File dir)
     {
@@ -350,5 +370,21 @@ public class Trainer implements Serializable
     public NeuralNetwork getNet()
     {
         return net;
+    }
+
+    /**
+     * @return the trainMSE
+     */
+    public double[][] getTrainMSE()
+    {
+        return trainMSE;
+    }
+
+    /**
+     * @return the testMSE
+     */
+    public double[] getTestMSE()
+    {
+        return testMSE;
     }
 }

@@ -5,7 +5,6 @@
     <groupId>kalpas</groupId>
     <artifactId>dip</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <name>dip</name>
     <url>http://maven.apache.org</url>
@@ -48,5 +47,7 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
+        
+        
     </dependencies>
 </project>

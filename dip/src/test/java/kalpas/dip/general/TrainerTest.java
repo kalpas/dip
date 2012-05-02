@@ -18,6 +18,7 @@ public class TrainerTest
         SimpleNetwork net = (SimpleNetwork)oin.readObject();
         
         Trainer simpleNetworkTrainer = Trainer.train(net).onTrainSet();
+        simpleNetworkTrainer.test();
 //        simpleNetworkTrainer.start(1);
 //        simpleNetworkTrainer.test();
         simpleNetworkTrainer.dump(1);

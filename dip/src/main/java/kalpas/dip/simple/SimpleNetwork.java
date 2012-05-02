@@ -69,6 +69,16 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
         }
     }
 
+    public double getMSE()
+    {
+        double MSE= 0;
+        for(double value: dErrorDx)
+        {
+            MSE +=value*value;
+        }
+        return 0.5*MSE;
+    }
+    
     /**
      * @param layer1
      *            the layer1 to set
@@ -102,5 +112,6 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
     {
         return fault;
     }
+
 
 }

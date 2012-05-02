@@ -2,9 +2,8 @@ package kalpas.dip;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
@@ -69,14 +68,19 @@ public class DataSet
 
         try
         {
-            URL url = this.getClass().getResource(getLabelFile());
+            InputStream labelStream = this.getClass().getResourceAsStream(getLabelFile());
+            labelsBufferedStream = new BufferedInputStream(labelStream);
+            InputStream imageStream = this.getClass().getResourceAsStream(getImageFile());
+            imagesBufferedStream = new BufferedInputStream(imageStream);
+            ///
+           /* URL url = this.getClass().getResource(getLabelFile());
             fileInputStream = new FileInputStream(url.getFile());
             labelsBufferedStream = new BufferedInputStream(fileInputStream);
             url = this.getClass().getResource(getImageFile());
             fileInputStream = new FileInputStream(url.getFile());
-            imagesBufferedStream = new BufferedInputStream(fileInputStream);
+            imagesBufferedStream = new BufferedInputStream(fileInputStream);*/
         }
-        catch(FileNotFoundException e)
+        catch(Exception e)
         {
             System.err.println("smth bad happened\n" + e.getCause());
         }

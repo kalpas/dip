@@ -10,4 +10,6 @@ public interface NeuralNetwork
     public double[] getdErrorDx();
     
     public boolean isFault();
+    
+    public double getMSE();
 }
