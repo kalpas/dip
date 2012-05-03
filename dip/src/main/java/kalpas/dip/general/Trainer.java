@@ -10,17 +10,11 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Date;
 
-import javax.swing.JFrame;
-
-import kalpas.dip.CLayer;
 import kalpas.dip.DataSet;
-import kalpas.dip.Flayer;
 import kalpas.dip.Image;
 import kalpas.dip.NeuralNetwork;
 import kalpas.dip.TestSet;
 import kalpas.dip.TrainingSet;
-import kalpas.dip.Visualize;
-import kalpas.dip.simple.SimpleNetwork;
 
 public class Trainer implements Serializable
 {
@@ -277,28 +271,11 @@ public class Trainer implements Serializable
         return (x - t) * (x - t);
     }
 
-    @Deprecated
     public void viewNetwork(int n, boolean fromTestSet)
     {
-        JFrame frame = new JFrame("network");
-        frame.setSize(800, 900);
-        Visualize visualize = new Visualize();
-        frame.getContentPane().add(visualize);
-        frame.setVisible(true);
-
         DataSet dataSet = fromTestSet ? testSet : trainSet;
         Image image = dataSet.getImageBy(n);
-        net.process(image);
-
-        Visualize.drawInput(image.bytes, dataSet.columns);
-        CLayer layer1 = ((SimpleNetwork) net).layer1;
-        Visualize.drawKernels(layer1.getKernelWeights());
-        Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapCount,
-                layer1.featureMapSize);
-        Flayer layer2 = ((SimpleNetwork) net).layer2;
-        Visualize.draw2LayerWeights(layer2.getWeights(), layer1.featureMapCount
-                * layer1.featureMapSize, layer1.featureMapSize);
-        Visualize.drawOutput(layer2.getOutput());
+        net.viewNetwork(image);
 
     }
 

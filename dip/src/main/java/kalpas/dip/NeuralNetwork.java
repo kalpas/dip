@@ -12,4 +12,6 @@ public interface NeuralNetwork
     public boolean isFault();
     
     public double getMSE();
+    
+    public void viewNetwork(Image image);
 }

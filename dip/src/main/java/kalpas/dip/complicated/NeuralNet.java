@@ -3,11 +3,14 @@ package kalpas.dip.complicated;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import javax.swing.JFrame;
+
 import kalpas.dip.CLayer;
 import kalpas.dip.CLayer2;
 import kalpas.dip.Flayer;
 import kalpas.dip.Image;
 import kalpas.dip.NeuralNetwork;
+import kalpas.dip.Visualize;
 
 public class NeuralNet implements NeuralNetwork, Serializable
 {
@@ -82,6 +85,28 @@ public class NeuralNet implements NeuralNetwork, Serializable
             MSE +=value*value;
         }
         return 0.5*MSE;
+    }
+    
+    public void viewNetwork(Image image)
+    {
+        JFrame frame = new JFrame("network");
+        frame.setSize(1200, 900);
+        Visualize visualize = new Visualize();
+        frame.getContentPane().add(visualize);
+        frame.setVisible(true);
+
+        this.process(image);
+
+        int imageSize = (int)Math.sqrt(image.bytes.length);
+        Visualize.drawInput(image.bytes,imageSize);
+        Visualize.drawKernels(layer1.getKernelWeights());
+        Visualize.draw1Layer(layer1.featureMaps, layer1.featureMapCount,
+                layer1.featureMapSize);
+        Visualize.draw2Kernels(layer2.getKernelWeights(), 4);
+        Visualize.draw2Layer(layer2.featureMaps, layer2.featureMapCount, layer2.featureMapSize);
+        Visualize.draw3Layer(layer3.getOutput());
+        Visualize.drawOutput(layer4.getOutput());
+
     }
 
 

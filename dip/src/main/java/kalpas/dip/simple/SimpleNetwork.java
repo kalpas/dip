@@ -113,5 +113,11 @@ public class SimpleNetwork implements NeuralNetwork, Serializable
         return fault;
     }
 
+    public void viewNetwork(Image image)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 
 }

@@ -153,15 +153,14 @@ public class NeuralNetworkBanch
         {
             dataSet = trainer.getTrainSet();
         }
+        else if(trainer != null && set.equals("testSet"))
+        {
+            dataSet = trainer.getTestSet();
+        }
         else
-            if(trainer != null && set.equals("testSet"))
-            {
-                dataSet = trainer.getTestSet();
-            }
-            else
-            {
-                System.err.println("wrong value for desired data set");
-            }
+        {
+            System.err.println("wrong value for desired data set");
+        }
 
         if(dataSet != null && n < dataSet.imageCount)
         {
@@ -171,6 +170,7 @@ public class NeuralNetworkBanch
         if(pattern != null)
         {
             JFrame frame = new JFrame("" + pattern.value);
+            frame.setLocation(500,500);
             PatternPane pane = new PatternPane();
             final int magnification = pane.getMAGNIFICATION();
             frame.setSize(dataSet.columns * magnification, dataSet.rows
@@ -266,6 +266,7 @@ public class NeuralNetworkBanch
                 GroupLayout.PREFERRED_SIZE, imageCanvasSize,
                 GroupLayout.PREFERRED_SIZE));
 
+        frame.setLocation(500,500);
         frame.getContentPane().add(mainPanel);
         frame.setVisible(true);
         result = true;
@@ -276,6 +277,31 @@ public class NeuralNetworkBanch
     public static boolean setProperty(String... args)
     {
         return false;
+    }
+    
+    public static boolean viewNetwork(String ...args)
+    {
+        boolean result = true;
+        boolean fromTestSet = false;
+        int n = 0;
+        
+        try{
+            n = Integer.parseInt(args[1]);
+            fromTestSet = Boolean.parseBoolean(args[0]);
+        }
+        catch(Exception e)
+        {
+            result = false;
+        }
+        
+        if(!result)
+        {
+            System.err.println("wrong params");
+            return result;
+        }
+        
+        trainer.viewNetwork(n, fromTestSet);
+        return result;
     }
 
     // --------------
@@ -298,6 +324,7 @@ public class NeuralNetworkBanch
                     * magnification + 30);
             pane.setPattern(imageToTest);
             frame.getContentPane().add(pane);
+            frame.setLocation(500,500);
             frame.setVisible(true);
         }
     }
@@ -335,8 +362,8 @@ public class NeuralNetworkBanch
     {
         int x = evt.getX();
         int y = evt.getY();
-        if(x >= 2 && y >= 2 && x <= imageCanvas.getWidth() - 2
-                && y <= imageCanvas.getHeight() - 2)
+        if(x >= 6 && y >= 6 && x <= imageCanvas.getWidth() - 6
+                && y <= imageCanvas.getHeight() - 6)
         {
             imageCanvas.getGraphics().setColor(Color.black);
             imageCanvas.getGraphics().fillRect(x - 6, y - 6, 12, 12);

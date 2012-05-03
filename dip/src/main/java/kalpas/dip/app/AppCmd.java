@@ -8,18 +8,20 @@ import kalpas.dip.app.actions.SetPropAction;
 import kalpas.dip.app.actions.ShowPatternAction;
 import kalpas.dip.app.actions.TestAction;
 import kalpas.dip.app.actions.TrainAction;
+import kalpas.dip.app.actions.ViewAction;
 
 
 public enum AppCmd
 {
-    LoadNet(new LoadAction(),1),
-    SaveNet(new SaveAction(),1),
-    Train(new TrainAction(),1),
-    Test(new TestAction(),0),
-    SetProperty(new SetPropAction(),2),
-    New(new NewAction(),0),
-    ShowPattern(new ShowPatternAction(),2),
-    DrawDigit(new DrawAction(),1);
+    loadnet(new LoadAction(),1),
+    savenet(new SaveAction(),1),
+    train(new TrainAction(),1),
+    test(new TestAction(),0),
+    setproperty(new SetPropAction(),2),
+    newnet(new NewAction(),0),
+    showpattern(new ShowPatternAction(),2),
+    drawdigit(new DrawAction(),1),
+    viewnet(new ViewAction(),2);
     
     private Action action;
     
