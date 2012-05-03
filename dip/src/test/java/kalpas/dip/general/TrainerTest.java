@@ -6,10 +6,12 @@ import java.io.ObjectInputStream;
 
 import kalpas.dip.simple.SimpleNetwork;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TrainerTest
 {
+    @Ignore
     @Test
     public void trainerTest() throws IOException, ClassNotFoundException
     {
@@ -17,11 +19,15 @@ public class TrainerTest
         ObjectInputStream oin = new ObjectInputStream(fis);
         SimpleNetwork net = (SimpleNetwork)oin.readObject();
         
+        
+        
         Trainer simpleNetworkTrainer = Trainer.train(net).onTrainSet();
+        simpleNetworkTrainer.reinit();
         simpleNetworkTrainer.test();
+        simpleNetworkTrainer.viewMSE(simpleNetworkTrainer.getTestMSE());
 //        simpleNetworkTrainer.start(1);
 //        simpleNetworkTrainer.test();
-        simpleNetworkTrainer.dump(1);
+//        simpleNetworkTrainer.dump(1);
     }
 
 }

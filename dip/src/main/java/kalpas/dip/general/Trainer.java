@@ -7,14 +7,28 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
+
+import javax.swing.JFrame;
 
 import kalpas.dip.DataSet;
 import kalpas.dip.Image;
 import kalpas.dip.NeuralNetwork;
 import kalpas.dip.TestSet;
 import kalpas.dip.TrainingSet;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.xy.IntervalXYDataset;
 
 public class Trainer implements Serializable
 {
@@ -27,7 +41,6 @@ public class Trainer implements Serializable
 
     private Double            ETA              = Constants.ETA_LEARNIG_RATE;
     private int               EPOCHS           = 10;
-    private double            errorThresold    = 0.001;
 
     transient private DataSet primarySet       = null;
 
@@ -41,10 +54,11 @@ public class Trainer implements Serializable
 
     private double[][]        trainMSE;
     private double[]          testMSE;
+    private BigDecimal[]      averageMSE       = null;
 
     private File              dir              = null;
-    
-    private DecimalFormat df = new DecimalFormat("#0.##");
+
+    private DecimalFormat     df               = new DecimalFormat("#0.##");
 
     private Trainer()
     {
@@ -72,6 +86,7 @@ public class Trainer implements Serializable
         this.dir.mkdirs();
         this.trainMSE = new double[this.EPOCHS][this.trainSet.imageCount];
         this.testMSE = new double[this.testSet.imageCount];
+        this.averageMSE = new BigDecimal[this.EPOCHS];
         df = new DecimalFormat("#0.##");
 
     }
@@ -107,24 +122,29 @@ public class Trainer implements Serializable
             Image image = null;
             for(int i = 0; i < EPOCHS; i++)
             {
+                averageMSE[i] = BigDecimal.ZERO;
                 for(int j = 0; j < primarySet.imageCount; j++)
                 {
                     image = primarySet.getNextImage();
                     net.process(image);
                     double mse = net.getMSE();
                     trainMSE[i][j] = mse;
-                    if(!net.isFault() && mse < errorThresold)
+                    averageMSE[i].add(BigDecimal.valueOf(mse));
+                    if(!net.isFault() && mse < Constants.ERROR_THRESOLD)
                         continue;
                     net.backPropagate();
-                    
-                    System.out.println(df.format(100.0*j/primarySet.imageCount)+" %");
+
+                    System.out.println(df.format(100.0 * j
+                            / primarySet.imageCount)
+                            + " %");
                 }
                 endEpoch = new Date();
                 epochTimes[i] = endEpoch.getTime() - startEpoch.getTime();
                 dump(i);
-                // Constants.ETA_LEARNIG_RATE /= 100;
-                // startEpoch = endEpoch;
+                Constants.ETA_LEARNIG_RATE *= 0.8;
                 System.out.println("EPOCH " + i + " is finished");
+                viewMSE(getTrainMSE()[i]);
+                averageMSE[i].divide(BigDecimal.valueOf(primarySet.imageCount));
                 test();
                 startEpoch = new Date();
 
@@ -139,7 +159,12 @@ public class Trainer implements Serializable
             averagePerEpoch /= epochTimes.length;
 
             delta = endTraining.getTime() - startTrainig.getTime();
-
+            
+            double[] avMSE = new double[EPOCHS];
+            int i = 0;
+            for(BigDecimal val: averageMSE)
+                avMSE[i++] = val.doubleValue();
+            viewMSE(avMSE);
             System.out.println(this.toString());
             save();
         }
@@ -177,20 +202,22 @@ public class Trainer implements Serializable
                 System.err.println("pattern not recognized: " + image.index);
                 errors++;
             }
-            System.out.println(df.format(100.0*j/testSet.imageCount)+" %");
+            System.out
+                    .println(df.format(100.0 * j / testSet.imageCount) + " %");
         }
         System.out.println(errors + " - " + errors * 100 / testSet.imageCount
                 + "%");
+        viewMSE(getTestMSE());
         return errors;
 
     }
-    
+
     public int test(Image image)
     {
         int output = -1;
         output = net.process(image);
-        System.out.println("digit is: "+output);
-        System.out.println("MSE: "+net.getMSE());
+        System.out.println("digit is: " + output);
+        System.out.println("MSE: " + net.getMSE());
         if(output != image.value)
         {
             System.err.println("ups!!! wrong guess: " + image.value);
@@ -265,10 +292,39 @@ public class Trainer implements Serializable
         return string.toString();
     }
 
-    @Deprecated
-    public double getMse(double x, double t)
+    public void viewMSE(double[] mse)
     {
-        return (x - t) * (x - t);
+        HistogramDataset histogramdataset = new HistogramDataset();
+        histogramdataset.addSeries("MSE", mse, 1000, Constants.ERROR_THRESOLD, 20D);
+
+        JFreeChart jfreechart = createChart(histogramdataset);
+        ChartPanel chartpanel = new ChartPanel(jfreechart);
+        chartpanel.setMouseWheelEnabled(true);
+        chartpanel.setVisible(true);
+        
+        JFrame frame = new JFrame("MSE");
+        frame.setSize(800, 800);
+        frame.getContentPane().add(chartpanel);
+        frame.setVisible(true);
+
+    }
+
+    private static JFreeChart createChart(IntervalXYDataset intervalxydataset)
+    {
+        JFreeChart jfreechart = ChartFactory.createHistogram(
+                "MSE per current EPOCH", null, null, intervalxydataset,
+                PlotOrientation.VERTICAL, true, true, false);
+        XYPlot xyplot = (XYPlot) jfreechart.getPlot();
+        xyplot.setDomainPannable(true);
+        xyplot.setRangePannable(true);
+        xyplot.setForegroundAlpha(0.85F);
+        NumberAxis numberaxis = (NumberAxis) xyplot.getRangeAxis();
+        numberaxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        XYBarRenderer xybarrenderer = (XYBarRenderer) xyplot.getRenderer();
+        xybarrenderer.setDrawBarOutline(false);
+        xybarrenderer.setBarPainter(new StandardXYBarPainter());
+        xybarrenderer.setShadowVisible(false);
+        return jfreechart;
     }
 
     public void viewNetwork(int n, boolean fromTestSet)
@@ -313,22 +369,6 @@ public class Trainer implements Serializable
         EPOCHS = ePOCHS;
     }
 
-    /**
-     * @return the errorThresold
-     */
-    public double getErrorThresold()
-    {
-        return errorThresold;
-    }
-
-    /**
-     * @param errorThresold
-     *            the errorThresold to set
-     */
-    public void setErrorThresold(double errorThresold)
-    {
-        this.errorThresold = errorThresold;
-    }
 
     /**
      * @return the delta

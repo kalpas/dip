@@ -17,6 +17,7 @@ import kalpas.dip.DataSet;
 import kalpas.dip.Image;
 import kalpas.dip.NeuralNetwork;
 import kalpas.dip.complicated.NeuralNet;
+import kalpas.dip.general.Constants;
 import kalpas.dip.general.Trainer;
 
 public class NeuralNetworkBanch
@@ -30,7 +31,7 @@ public class NeuralNetworkBanch
 
     private static Trainer trainer;
 
-    private double         ETA             = 0.001;
+    private double         ETA             = Constants.ETA_LEARNIG_RATE;
 
     private double         mseMin          = 0.001;
 
@@ -276,7 +277,28 @@ public class NeuralNetworkBanch
 
     public static boolean setProperty(String... args)
     {
-        return false;
+        boolean result = true;
+        double eta = 0.0;
+        double err = 0.0;
+        
+        try
+        {
+            eta = Double.parseDouble(args[0]);
+            err = Double.parseDouble(args[1]);
+        }
+        catch(Exception e)
+        {
+            result = false;
+        }
+        if(result)
+        {
+            Constants.ETA_LEARNIG_RATE = eta;
+            Constants.ERROR_THRESOLD = err;
+            System.out.println("ETA_LEARNIG_RATE " + Constants.ETA_LEARNIG_RATE);
+            System.out.println("ERROR_THRESOLD " + Constants.ERROR_THRESOLD);
+        }
+        
+        return result;
     }
     
     public static boolean viewNetwork(String ...args)
