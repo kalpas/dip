@@ -13,13 +13,14 @@ import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import kalpas.dip.DataSet;
-import kalpas.dip.Image;
-import kalpas.dip.NeuralNetwork;
-import kalpas.dip.complicated.NeuralNet;
-import kalpas.dip.general.Core;
-import kalpas.dip.general.Trainer;
-import kalpas.dip.simple.SimpleNetwork;
+import kalpas.dip.app.data.DataSet;
+import kalpas.dip.app.data.Image;
+import kalpas.dip.app.neural.Core;
+import kalpas.dip.app.neural.Trainer;
+import kalpas.dip.app.neural.networks.NeuralNetwork;
+import kalpas.dip.app.neural.networks.complicated.NeuralNet;
+import kalpas.dip.app.neural.networks.simple.SimpleNetwork;
+import kalpas.dip.app.views.PatternPane;
 
 public class NeuralNetworkBanch
 {
@@ -29,13 +30,8 @@ public class NeuralNetworkBanch
     private static Canvas  imageCanvas     = null;
     private static int     desiredOutput   = -1;
     private static int[][] points;
-    
 
     private static Trainer trainer;
-
-    private double         ETA             = Core.ETA_LEARNIG_RATE;
-
-    private double         mseMin          = 0.000000001;
 
     public static boolean save(String... args)
     {
@@ -90,7 +86,7 @@ public class NeuralNetworkBanch
         if(trainer != null)
         {
             trainer.test();
-            result  = true;
+            result = true;
         }
         else
         {
@@ -112,13 +108,16 @@ public class NeuralNetworkBanch
         }
         if(trainer != null && trainer.getNet() != null)
         {
-            if(args.length>1)
+            try
             {
                 if(args[1].toLowerCase().equals("ontestset"))
                 {
                     trainer.onTestSet();
                     System.out.println("trainig on test set");
                 }
+            }
+            catch(Exception e)
+            {
             }
             if(EPOCHS != 0)
             {
@@ -140,30 +139,25 @@ public class NeuralNetworkBanch
     public static boolean newNet(String... args)
     {
         NeuralNetwork net;
-        if(args.length>0 && args[0]!=null && "convo".equals(args[0]))
+        if(args.length > 0 && args[0] != null && "convo".equals(args[0]))
         {
-            if(args.length<4)
+            try
             {
-                net = new NeuralNet();
+                net = new NeuralNet(Integer.parseInt(args[1]),
+                        Integer.parseInt(args[2]), Integer.parseInt(args[3]));
             }
-            else
+            catch(Exception e)
             {
-                try
-                {
-                    net = new NeuralNet(Integer.parseInt(args[1]),Integer.parseInt(args[2]),Integer.parseInt(args[3]));
-                }
-                catch(Exception e)
-                {
-                    System.err.println("bad bad bad. just have created using defaults.. you can give it a try");
-                    net = new NeuralNet();
-                }
+                System.err
+                        .println("bad bad bad. just have created using defaults.. you can give it a try");
+                net = new NeuralNet();
             }
         }
         else
         {
             net = new SimpleNetwork();
         }
-        
+
         trainer = Trainer.train(net).onTrainSet();
         return true;
     }
@@ -184,18 +178,19 @@ public class NeuralNetworkBanch
         Image pattern = null;
         DataSet dataSet = null;
 
-        if(trainer != null && set.equals("trainSet"))
+        if(trainer != null && set.equalsIgnoreCase("trainset"))
         {
             dataSet = trainer.getTrainSet();
         }
-        else if(trainer != null && set.equals("testSet"))
-        {
-            dataSet = trainer.getTestSet();
-        }
         else
-        {
-            System.err.println("wrong value for desired data set");
-        }
+            if(trainer != null && set.equalsIgnoreCase("testset"))
+            {
+                dataSet = trainer.getTestSet();
+            }
+            else
+            {
+                System.err.println("wrong value for desired data set");
+            }
 
         if(dataSet != null && n < dataSet.imageCount)
         {
@@ -205,7 +200,7 @@ public class NeuralNetworkBanch
         if(pattern != null)
         {
             JFrame frame = new JFrame("" + pattern.value);
-            frame.setLocation(500,500);
+            frame.setLocation(500, 500);
             PatternPane pane = new PatternPane();
             final int magnification = pane.getMAGNIFICATION();
             frame.setSize(dataSet.columns * magnification, dataSet.rows
@@ -221,7 +216,7 @@ public class NeuralNetworkBanch
     public static boolean drawDigit(String... args)
     {
         boolean result = false;
-        if(trainer == null || frame!=null)
+        if(trainer == null || frame != null)
             return result;
 
         desiredOutput = -1;
@@ -301,7 +296,7 @@ public class NeuralNetworkBanch
                 GroupLayout.PREFERRED_SIZE, imageCanvasSize,
                 GroupLayout.PREFERRED_SIZE));
 
-        frame.setLocation(500,500);
+        frame.setLocation(500, 500);
         frame.getContentPane().add(mainPanel);
         frame.setVisible(true);
         result = true;
@@ -314,7 +309,7 @@ public class NeuralNetworkBanch
         boolean result = true;
         double eta = 0.0;
         double err = 0.0;
-        
+
         try
         {
             eta = Double.parseDouble(args[0]);
@@ -331,17 +326,18 @@ public class NeuralNetworkBanch
             System.out.println("ETA_LEARNIG_RATE " + Core.ETA_LEARNIG_RATE);
             System.out.println("ERROR_THRESOLD " + Core.ERROR_THRESOLD);
         }
-        
+
         return result;
     }
-    
-    public static boolean viewNetwork(String ...args)
+
+    public static boolean viewNetwork(String... args)
     {
         boolean result = true;
         boolean fromTestSet = false;
         int n = 0;
-        
-        try{
+
+        try
+        {
             n = Integer.parseInt(args[1]);
             fromTestSet = Boolean.parseBoolean(args[0]);
         }
@@ -349,13 +345,13 @@ public class NeuralNetworkBanch
         {
             result = false;
         }
-        
+
         if(!result)
         {
             System.err.println("wrong params");
             return result;
         }
-        
+
         trainer.viewNetwork(n, fromTestSet);
         return result;
     }
@@ -376,11 +372,11 @@ public class NeuralNetworkBanch
             JFrame frame = new JFrame("" + imageToTest.value);
             PatternPane pane = new PatternPane();
             final int magnification = pane.getMAGNIFICATION();
-            frame.setSize(inputSize * magnification, inputSize
-                    * magnification + 30);
+            frame.setSize(inputSize * magnification, inputSize * magnification
+                    + 30);
             pane.setPattern(imageToTest);
             frame.getContentPane().add(pane);
-            frame.setLocation(500,500);
+            frame.setLocation(500, 500);
             frame.setVisible(true);
         }
     }

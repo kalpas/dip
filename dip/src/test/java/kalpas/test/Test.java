@@ -3,6 +3,8 @@ package kalpas.test;
 import java.util.Arrays;
 import java.util.Random;
 
+import kalpas.dip.app.neural.layers.testNeuronLayer;
+
 public class Test
 {
 

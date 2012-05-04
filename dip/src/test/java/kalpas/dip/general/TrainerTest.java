@@ -4,7 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-import kalpas.dip.simple.SimpleNetwork;
+import kalpas.dip.app.neural.Trainer;
+import kalpas.dip.app.neural.networks.simple.SimpleNetwork;
 
 import org.junit.Ignore;
 import org.junit.Test;

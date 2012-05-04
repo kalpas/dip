@@ -1,1 +1,1 @@
-test project for neural network simulation
+diploma project for neural network simulation

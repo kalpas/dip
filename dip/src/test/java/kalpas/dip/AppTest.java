@@ -8,7 +8,12 @@ import java.io.ObjectOutputStream;
 
 import javax.swing.JFrame;
 
-import kalpas.dip.simple.SimpleNetwork;
+import kalpas.dip.app.data.Image;
+import kalpas.dip.app.data.TestSet;
+import kalpas.dip.app.neural.layers.CLayer;
+import kalpas.dip.app.neural.layers.Flayer;
+import kalpas.dip.app.neural.networks.simple.SimpleNetwork;
+import kalpas.dip.app.views.Visualize;
 
 import org.junit.Ignore;
 import org.junit.Test;
