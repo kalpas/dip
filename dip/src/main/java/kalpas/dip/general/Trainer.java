@@ -69,9 +69,6 @@ public class Trainer implements Serializable
         trainer.primarySet = trainer.trainSet;
         trainer.dir = new File("dump\\" + (new Date()).getTime());
         trainer.dir.mkdirs();
-        trainer.trainMSE = new double[trainer.EPOCHS][trainer.trainSet.imageCount];
-        trainer.testMSE = new double[trainer.testSet.imageCount];
-        trainer.averageMSE = new BigDecimal[trainer.EPOCHS];
         return trainer;
 
     }
@@ -83,23 +80,17 @@ public class Trainer implements Serializable
         this.primarySet = this.trainSet;
         this.dir = new File("dump\\" + (new Date()).getTime());
         this.dir.mkdirs();
-        this.trainMSE = new double[this.EPOCHS][this.trainSet.imageCount];
-        this.testMSE = new double[this.testSet.imageCount];
-        this.averageMSE = new BigDecimal[this.EPOCHS];
-
     }
 
     public Trainer onTrainSet()
     {
         this.primarySet = trainSet;
-        this.trainMSE = new double[this.EPOCHS][this.primarySet.imageCount];
         return this;
     }
 
     public Trainer onTestSet()
     {
         this.primarySet = testSet;
-        this.trainMSE = new double[this.EPOCHS][this.primarySet.imageCount];
         return this;
     }
 
@@ -112,9 +103,14 @@ public class Trainer implements Serializable
 
     public void start()
     {
+        System.out.println("Running test before start");
+        test();
+        
         double percent = 0;
         int percentStep = 0;
         epochTimes = new long[EPOCHS];
+        averageMSE = new BigDecimal[this.EPOCHS];
+        this.trainMSE = new double[this.EPOCHS][this.trainSet.imageCount];
         startTrainig = new Date();
         startEpoch = startTrainig;
         if(primarySet != null)
@@ -124,6 +120,8 @@ public class Trainer implements Serializable
             for(int i = 0; i < EPOCHS; i++)
             {
                 averageMSE[i] = BigDecimal.ZERO;
+                percent = 0;
+                percentStep = 0;
                 for(int j = 0; j < primarySet.imageCount; j++)
                 {
                     image = primarySet.getNextImage();
@@ -152,7 +150,7 @@ public class Trainer implements Serializable
                         BigDecimal.valueOf(primarySet.imageCount), 15,
                         RoundingMode.HALF_UP);
                 viewMSE(getTrainMSE()[i], "MSE for " + i + " EPOCH",
-                        averageMSE[i].doubleValue() * 2);
+                        20d);
                 System.out.println("Average MSE for " + i + " EPOCH is: "
                         + averageMSE[i].doubleValue());
                 test();
@@ -170,11 +168,9 @@ public class Trainer implements Serializable
 
             delta = endTraining.getTime() - startTrainig.getTime();
 
-            double[] avMSE = new double[EPOCHS];
-            int i = 0;
-            for(BigDecimal val : averageMSE)
-                avMSE[i++] = val.doubleValue();
-            viewMSE(avMSE, "Average MSE per all EPOCHs", avMSE[0] * 2);
+            for(int i = 0; i < averageMSE.length; i++)
+                System.out.println("Average mse per EPOCH "+i+" = "+averageMSE[i].doubleValue());
+            viewMSE(trainMSE, "MSE per all EPOCHs", 20d);
             System.out.println(this.toString());
             save();
         }
@@ -201,6 +197,7 @@ public class Trainer implements Serializable
         double percent = 0;
         int percentStep = 0;
         
+        this.testMSE = new double[this.testSet.imageCount];
         int errors = 0;
         Image image = null;
         int output = -1;
@@ -230,7 +227,7 @@ public class Trainer implements Serializable
         avMSE = avMSE.divide(BigDecimal.valueOf(testSet.imageCount), 15,
                 RoundingMode.HALF_UP);
         System.out.println("Average MSE is: " + avMSE.doubleValue());
-        viewMSE(getTestMSE(), "MSE during test", avMSE.doubleValue() * 2);
+        viewMSE(getTestMSE(), "MSE during test", 20d);
         return errors;
 
     }
@@ -322,8 +319,29 @@ public class Trainer implements Serializable
     public void viewMSE(double[] mse, String label, double max)
     {
         HistogramDataset histogramdataset = new HistogramDataset();
-        histogramdataset.addSeries("MSE", mse, 1000, Core.ERROR_THRESOLD,
+        histogramdataset.addSeries("MSE", mse, 100, Core.ERROR_THRESOLD,
                 max);
+
+        JFreeChart jfreechart = createChart(histogramdataset, label);
+        ChartPanel chartpanel = new ChartPanel(jfreechart);
+        chartpanel.setMouseWheelEnabled(true);
+        chartpanel.setVisible(true);
+
+        JFrame frame = new JFrame("MSE");
+        frame.setSize(800, 800);
+        frame.getContentPane().add(chartpanel);
+        frame.setVisible(true);
+
+    }
+    
+    public void viewMSE(double[][] mse, String label, double max)
+    {
+        HistogramDataset histogramdataset = new HistogramDataset();
+        for(int i = 0; i < mse.length; i++)
+        {
+            histogramdataset.addSeries("EPOCH "+i, mse[i], 100, Core.ERROR_THRESOLD,
+                max);
+        }
 
         JFreeChart jfreechart = createChart(histogramdataset, label);
         ChartPanel chartpanel = new ChartPanel(jfreechart);

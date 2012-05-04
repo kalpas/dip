@@ -35,7 +35,7 @@ public class NeuralNetworkBanch
 
     private double         ETA             = Core.ETA_LEARNIG_RATE;
 
-    private double         mseMin          = 0.001;
+    private double         mseMin          = 0.000000001;
 
     public static boolean save(String... args)
     {
@@ -112,6 +112,14 @@ public class NeuralNetworkBanch
         }
         if(trainer != null && trainer.getNet() != null)
         {
+            if(args.length>1)
+            {
+                if(args[1].toLowerCase().equals("ontestset"))
+                {
+                    trainer.onTestSet();
+                    System.out.println("trainig on test set");
+                }
+            }
             if(EPOCHS != 0)
             {
                 trainer.start(EPOCHS);
@@ -132,9 +140,9 @@ public class NeuralNetworkBanch
     public static boolean newNet(String... args)
     {
         NeuralNetwork net;
-        if(args[0]!=null && "convo".equals(args[0]))
+        if(args.length>0 && args[0]!=null && "convo".equals(args[0]))
         {
-            if(args[1]==null)
+            if(args.length<4)
             {
                 net = new NeuralNet();
             }

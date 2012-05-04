@@ -16,9 +16,9 @@ public class Core
     public static final int            KERNEL_ELEMENTS2 = KERNEL_SIZE2
                                                                 * KERNEL_SIZE2;
 
-    public static double               ETA_LEARNIG_RATE = 0.0005;
+    public static double               ETA_LEARNIG_RATE = 0.002;
 
-    public static double               ERROR_THRESOLD   = 0.001;
+    public static double               ERROR_THRESOLD   = 0.0001;
 
     public static PrintWriter         out;
 

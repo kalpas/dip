@@ -51,19 +51,13 @@ public class App
                         }
                         if(cmd != null)
                         {
-                            argsAreValid = true;
-                            arguemens = new String[cmd.getArgNumber()];
-                            for(int i = 0; i < arguemens.length; i++)
+                            arguemens = new String[10];
+                            int i = 0;
+                            while(tokens.hasMoreTokens()&&i<10)
                             {
-                                if(tokens.hasMoreTokens())
-                                    arguemens[i] = tokens.nextToken();
-                                else
-                                {
-                                    argsAreValid = false;
-                                    break;
-                                }
+                                 arguemens[i++] = tokens.nextToken();
                             }
-                            if(argsAreValid)
+                            if(i>=cmd.getArgNumber())
                             {
                                 if(cmd.execute(arguemens))
                                 {
