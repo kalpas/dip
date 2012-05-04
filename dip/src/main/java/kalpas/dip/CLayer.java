@@ -3,7 +3,7 @@ package kalpas.dip;
 import java.io.Serializable;
 import java.util.Random;
 
-import kalpas.dip.general.Constants;
+import kalpas.dip.general.Core;
 
 public class CLayer implements Serializable
 {
@@ -31,17 +31,17 @@ public class CLayer implements Serializable
     public CLayer(int featureMapSize, int featureMapCount, int inputSize)
     {
 
-        this.BIAS = Constants.KERNEL_ELEMENTS;
+        this.BIAS = Core.KERNEL_ELEMENTS;
 
         this.featureMapCount = featureMapCount;
         this.featureMapSize = featureMapSize;
         this.inputSize = inputSize;
         this.neurons = featureMapSize * featureMapSize;
 
-        kernelWeights = new double[featureMapCount][Constants.KERNEL_ELEMENTS + 1];
+        kernelWeights = new double[featureMapCount][Core.KERNEL_ELEMENTS + 1];
         featureMaps = new double[featureMapCount * neurons];
         dErrorDy = new double[featureMapCount][neurons];
-        dErrorDw = new double[featureMapCount][neurons][Constants.KERNEL_ELEMENTS + 1];
+        dErrorDw = new double[featureMapCount][neurons][Core.KERNEL_ELEMENTS + 1];
         // dErrorDxm1 = new double[featureMapCount][fmapElCount];
 
         initKernelWeights();
@@ -50,7 +50,7 @@ public class CLayer implements Serializable
 
     public double[] process(byte[] image)
     {
-        final int kernelSize = Constants.KERNEL_SIZE;
+        final int kernelSize = Core.KERNEL_SIZE;
         
         this.input = new double[image.length];
         for(int i = 0; i < image.length; i++)
@@ -95,7 +95,7 @@ public class CLayer implements Serializable
       /*  for(double[][] array : dErrorDw)
             for(double[] subArray : array)
                 Arrays.fill(subArray, 0.0);*/
-        final int kernelElements = Constants.KERNEL_ELEMENTS;
+        final int kernelElements = Core.KERNEL_ELEMENTS;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
@@ -119,7 +119,7 @@ public class CLayer implements Serializable
         }
 
         
-        final double eta = Constants.ETA_LEARNIG_RATE;
+        final double eta = Core.ETA_LEARNIG_RATE;
         for(int feature = 0; feature < featureMapCount; feature++)
         {
             for(int neuronIndex = 0; neuronIndex < neurons; neuronIndex++)
@@ -138,9 +138,9 @@ public class CLayer implements Serializable
     private final void initKernelWeights()
     {
         Random randomizer = new Random();
-        final double pow = Math.pow(Constants.KERNEL_ELEMENTS, -0.5);
+        final double pow = Math.pow(Core.KERNEL_ELEMENTS, -0.5);
         for(double[] array : kernelWeights)
-            for(int i = 0; i < Constants.KERNEL_ELEMENTS; i++)
+            for(int i = 0; i < Core.KERNEL_ELEMENTS; i++)
                 array[i] = randomizer.nextGaussian() * pow;
     }
 

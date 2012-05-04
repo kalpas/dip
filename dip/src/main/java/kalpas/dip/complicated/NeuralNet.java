@@ -35,6 +35,17 @@ public class NeuralNet implements NeuralNetwork, Serializable
                 * layer2.featureMapCount);
         layer4 = new Flayer(10, layer3.neurons);
     }
+    
+    public NeuralNet(int l1, int l2, int l3)
+    {
+        dErrorDx = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0 };
+        layer1 = new CLayer(24, l1, 28);
+        layer2 = new CLayer2(11, l2, layer1.featureMapCount, layer1.featureMapSize);
+        layer3 = new Flayer(l3, layer2.featureMapSize * layer2.featureMapSize
+                * layer2.featureMapCount);
+        layer4 = new Flayer(10, layer3.neurons);
+    }
 
     public int process(Image image)
     {

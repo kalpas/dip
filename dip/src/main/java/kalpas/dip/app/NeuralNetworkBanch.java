@@ -17,8 +17,9 @@ import kalpas.dip.DataSet;
 import kalpas.dip.Image;
 import kalpas.dip.NeuralNetwork;
 import kalpas.dip.complicated.NeuralNet;
-import kalpas.dip.general.Constants;
+import kalpas.dip.general.Core;
 import kalpas.dip.general.Trainer;
+import kalpas.dip.simple.SimpleNetwork;
 
 public class NeuralNetworkBanch
 {
@@ -28,10 +29,11 @@ public class NeuralNetworkBanch
     private static Canvas  imageCanvas     = null;
     private static int     desiredOutput   = -1;
     private static int[][] points;
+    
 
     private static Trainer trainer;
 
-    private double         ETA             = Constants.ETA_LEARNIG_RATE;
+    private double         ETA             = Core.ETA_LEARNIG_RATE;
 
     private double         mseMin          = 0.001;
 
@@ -129,7 +131,31 @@ public class NeuralNetworkBanch
 
     public static boolean newNet(String... args)
     {
-        NeuralNetwork net = new NeuralNet();
+        NeuralNetwork net;
+        if(args[0]!=null && "convo".equals(args[0]))
+        {
+            if(args[1]==null)
+            {
+                net = new NeuralNet();
+            }
+            else
+            {
+                try
+                {
+                    net = new NeuralNet(Integer.parseInt(args[1]),Integer.parseInt(args[2]),Integer.parseInt(args[3]));
+                }
+                catch(Exception e)
+                {
+                    System.err.println("bad bad bad. just have created using defaults.. you can give it a try");
+                    net = new NeuralNet();
+                }
+            }
+        }
+        else
+        {
+            net = new SimpleNetwork();
+        }
+        
         trainer = Trainer.train(net).onTrainSet();
         return true;
     }
@@ -292,10 +318,10 @@ public class NeuralNetworkBanch
         }
         if(result)
         {
-            Constants.ETA_LEARNIG_RATE = eta;
-            Constants.ERROR_THRESOLD = err;
-            System.out.println("ETA_LEARNIG_RATE " + Constants.ETA_LEARNIG_RATE);
-            System.out.println("ERROR_THRESOLD " + Constants.ERROR_THRESOLD);
+            Core.ETA_LEARNIG_RATE = eta;
+            Core.ERROR_THRESOLD = err;
+            System.out.println("ETA_LEARNIG_RATE " + Core.ETA_LEARNIG_RATE);
+            System.out.println("ERROR_THRESOLD " + Core.ERROR_THRESOLD);
         }
         
         return result;

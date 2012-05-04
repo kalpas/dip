@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import kalpas.dip.general.Constants;
+import kalpas.dip.general.Core;
 
 @SuppressWarnings("serial")
 public class Visualize extends Canvas
@@ -34,8 +34,8 @@ public class Visualize extends Canvas
 
     public static void drawKernels(double[][] weights)
     {
-        Visualize.kernels = imageFromDouble(weights, Constants.KERNEL_SIZE,
-                Constants.KERNEL_SIZE);
+        Visualize.kernels = imageFromDouble(weights, Core.KERNEL_SIZE,
+                Core.KERNEL_SIZE);
     }
 
     private static BufferedImage imageFromLayer2KernelWeights(

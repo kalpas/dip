@@ -24,7 +24,7 @@ public class TrainerTest
         Trainer simpleNetworkTrainer = Trainer.train(net).onTrainSet();
         simpleNetworkTrainer.reinit();
         simpleNetworkTrainer.test();
-        simpleNetworkTrainer.viewMSE(simpleNetworkTrainer.getTestMSE());
+//        simpleNetworkTrainer.viewMSE(simpleNetworkTrainer.getTestMSE());
 //        simpleNetworkTrainer.start(1);
 //        simpleNetworkTrainer.test();
 //        simpleNetworkTrainer.dump(1);

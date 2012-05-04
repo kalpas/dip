@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 
-import kalpas.dip.general.Constants;
+import kalpas.dip.general.Core;
 
 public class Flayer implements Serializable
 {
@@ -86,7 +86,7 @@ public class Flayer implements Serializable
         {
             for(int connectionIndex = 0; connectionIndex < inputs; connectionIndex++)
             {
-                weights[neuronIndex][connectionIndex] -= Constants.ETA_LEARNIG_RATE*dErrorDw[neuronIndex][connectionIndex];
+                weights[neuronIndex][connectionIndex] -= Core.ETA_LEARNIG_RATE*dErrorDw[neuronIndex][connectionIndex];
             }
         }
         
