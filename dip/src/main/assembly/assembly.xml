@@ -1,5 +1,5 @@
 <assembly>
-    <id>assembly.xml</id>
+    <id>executable</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -7,8 +7,14 @@
         <fileSet>
             <includes>
                 <include>README*</include>
+                <include>trainedNetworks\*.network</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>scripts</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
                 <include>*.bat</include>
-                <include>*.network</include>
             </includes>
         </fileSet>
         <fileSet>
