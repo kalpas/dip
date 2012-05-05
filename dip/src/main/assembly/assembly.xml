@@ -28,5 +28,9 @@
                 <exclude>*shaded*</exclude>
             </excludes>
         </fileSet>
+        <fileSet>
+            <directory>src</directory>
+            <outputDirectory>source</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>
